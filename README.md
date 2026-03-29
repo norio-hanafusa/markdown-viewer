@@ -42,18 +42,25 @@ https://norio-hanafusa.github.io/markdown-viewer/index.html
 
 ※ APIキーはブラウザのメモリにのみ保持され、外部に保存されません。
 
-## 技術スタック
-
-- [marked](https://github.com/markedjs/marked) - Markdownパーサー
-- [highlight.js](https://highlightjs.org/) - シンタックスハイライト
-- [MathJax](https://www.mathjax.org/) - 数式レンダリング
-- [Mermaid](https://mermaid.js.org/) - 図表描画
-- [html-docx-js](https://github.com/evidenceprime/html-docx-js) - DOCX出力
-
 ## 開発について
 
 本プロジェクトは、ChatGPT・Gemini・Claudeを活用した **Vibeコーディング** によって作成されました。
 
-## ライセンス
+## License
 
-[MIT License](LICENSE)
+This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
+
+Copyright (c) 2026 norio-hanafusa
+
+### Third-Party Licenses
+
+This project depends on the following open-source libraries.
+Users and redistributors must comply with each library's license terms.
+
+| Library | License | URL |
+|---|---|---|
+| marked | MIT | https://github.com/markedjs/marked |
+| highlight.js | BSD 3-Clause | https://github.com/highlightjs/highlight.js |
+| MathJax | Apache 2.0 | https://github.com/mathjax/MathJax |
+| Mermaid | MIT | https://github.com/mermaid-js/mermaid |
+| html-docx-js | MIT | https://github.com/evidenceprime/html-docx-js |
