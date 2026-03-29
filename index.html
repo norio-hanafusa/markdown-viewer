@@ -1,0 +1,3383 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Markdown Viewer Advanced</title>
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            --bg-gradient-start: #f0f4f8;
+            --bg-gradient-end: #e2e8f0;
+            --fg: #1a202c;
+            --panel-bg: #ffffff;
+            --panel-shadow: rgba(0, 0, 0, 0.08);
+            --border: #cbd5e0;
+            --code-bg: #f7fafc;
+            --blockquote-border: #3182ce;
+            --button-bg: #4299e1;
+            --button-hover: #3182ce;
+            --button-text: #ffffff;
+            --accent: #4299e1;
+            --success: #48bb78;
+            --secondary: #718096;
+            --secondary-hover: #4a5568;
+            --dropdown-hover-bg: #edf2f7;
+        }
+
+        body.dark {
+            --bg-gradient-start: #1a202c;
+            --bg-gradient-end: #2d3748;
+            --fg: #e2e8f0;
+            --panel-bg: #2d3748;
+            --panel-shadow: rgba(0, 0, 0, 0.3);
+            --border: #4a5568;
+            --code-bg: #1a202c;
+            --blockquote-border: #f59e0b;
+            --button-bg: #1e3a5f;
+            --button-hover: #15293f;
+            --button-text: #ffffff;
+            --accent: #f59e0b;
+            --success: #065f46;
+            --secondary: #374151;
+            --secondary-hover: #1f2937;
+            --dropdown-hover-bg: #4a5568;
+        }
+
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            color: var(--fg);
+            min-height: 100vh;
+        }
+
+        h2 {
+            margin: 0;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        textarea {
+            width: 100%;
+            font-size: 14px;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
+            border: 2px solid var(--border);
+            background: var(--panel-bg);
+            color: var(--fg);
+            padding: 16px;
+            box-sizing: border-box;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px var(--panel-shadow);
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+
+        #preview {
+            border: 2px solid var(--border);
+            padding: 24px;
+            background: var(--panel-bg);
+            box-sizing: border-box;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px var(--panel-shadow);
+            overflow-x: auto;
+        }
+
+        .info-container {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 0;
+            background: var(--panel-bg);
+            padding: 10px 16px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px var(--panel-shadow);
+            border: 2px solid var(--border);
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        @media screen and (max-width: 799px) {
+            .info-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        /* ▼▼▼ ドロップダウンメニュー用CSS ▼▼▼ */
+        .button-area {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 0;
+            flex-wrap: wrap;
+        }
+
+        .button-section {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .button-divider {
+            width: 2px;
+            height: 24px;
+            background: var(--border);
+            margin: 0 4px;
+        }
+
+        .dropdown-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: var(--panel-bg);
+            min-width: 200px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            z-index: 1000;
+            padding: 4px 0;
+            margin-top: 4px;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            color: var(--fg);
+            padding: 10px 16px;
+            text-decoration: none;
+            display: block;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--dropdown-hover-bg);
+            color: var(--accent);
+        }
+
+        /* ▲▲▲ ドロップダウンメニュー用CSS ここまで ▲▲▲ */
+
+
+        #file-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        #stats-info {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .stat-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .stat-label {
+            font-weight: 600;
+            color: var(--accent);
+            font-size: 13px;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            color: var(--fg);
+            font-size: 14px;
+        }
+
+        #file-info label {
+            font-weight: 600;
+            color: var(--accent);
+            font-size: 13px;
+        }
+
+        #current-file {
+            font-weight: 500;
+            color: var(--fg);
+            font-size: 14px;
+        }
+
+        .custom-dialog-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .custom-dialog-overlay.show {
+            display: flex;
+        }
+
+        .custom-dialog {
+            background: var(--panel-bg);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 400px;
+            min-width: 300px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .custom-dialog-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--fg);
+            margin-bottom: 16px;
+        }
+
+        .custom-dialog-message {
+            color: var(--fg);
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .custom-dialog-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .custom-dialog-buttons button {
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .dialog-btn-primary {
+            background: var(--button-bg);
+            color: var(--button-text);
+        }
+
+        .dialog-btn-primary:hover {
+            background: var(--button-hover);
+        }
+
+        .dialog-btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .dialog-btn-secondary:hover {
+            background: var(--secondary-hover);
+        }
+
+        @media screen {
+
+            textarea,
+            #preview {
+                min-height: 60vh;
+            }
+        }
+
+        @media screen and (max-width: 799px) {
+
+            textarea,
+            #preview {
+                min-height: 38vh;
+            }
+        }
+
+        @media screen {
+
+            body.vertical-layout textarea,
+            body.vertical-layout #preview {
+                min-height: 38vh;
+            }
+        }
+
+        .input-header,
+        .preview-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 0;
+            flex-wrap: wrap;
+        }
+        /* ▼▼▼ 追加: Markdown側ツールバー ▼▼▼ */
+.md-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-left: auto;
+        }
+        .md-toolbar .button {
+            padding: 6px 10px;
+            font-size: 12px;
+            border-radius: 8px;
+            box-shadow: none;
+        }
+        .md-toolbar .button:hover {
+            transform: none;
+            box-shadow: none;
+        }
+        /* ▲▲▲ 追加ここまで ▲▲▲ */        /* 既存のbuttonスタイル */
+        button.button {
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 8px;
+            border: none;
+            background: var(--button-bg);
+            color: var(--button-text);
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        button.button:hover {
+            background: var(--button-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        button.button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        button.button-secondary {
+            background: var(--secondary);
+        }
+
+        button.button-secondary:hover {
+            background: var(--secondary-hover);
+        }
+
+        /* コードブロックのコピーボタン用のスタイル上書き */
+        .copy-code-btn {
+            background: transparent;
+            border: none;
+            color: var(--secondary);
+            cursor: pointer;
+            padding: 4px 8px;
+            font-size: 16px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: none;
+        }
+
+        select {
+            padding: 8px 12px;
+            font-size: 13px;
+            border-radius: 8px;
+            border: 2px solid var(--border);
+            background: var(--panel-bg);
+            color: var(--fg);
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            margin-top: 1em;
+            margin-bottom: 0.5em;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        h1 {
+            font-size: 2em;
+            color: var(--accent);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.3em;
+        }
+
+        h2 {
+            font-size: 1.6em;
+            color: var(--accent);
+        }
+
+        h3 {
+            font-size: 1.3em;
+            color: var(--accent);
+        }
+
+        pre {
+            background: var(--code-bg);
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 2px solid var(--border);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        code {
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
+            font-size: 0.9em;
+        }
+
+        p>code {
+            background: var(--code-bg);
+            padding: 3px 6px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            border-collapse: collapse;
+            margin: 1em 0;
+            width: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        th,
+        td {
+            border: 1px solid var(--border);
+            padding: 12px 16px;
+            text-align: left;
+        }
+
+        th[align="center"],
+        td[align="center"] {
+            text-align: center;
+        }
+
+        th[align="right"],
+        td[align="right"] {
+            text-align: right;
+        }
+
+        th {
+            background: var(--code-bg);
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        tr:hover {
+            background: var(--code-bg);
+        }
+
+        blockquote {
+            border-left: 4px solid var(--blockquote-border);
+            padding-left: 16px;
+            margin: 1em 0;
+            color: #718096;
+            font-style: italic;
+        }
+
+        body.dark blockquote {
+            color: #a0aec0;
+        }
+
+        li.task-list-item {
+            list-style-type: none;
+        }
+
+        input[type="checkbox"].task-list-item-checkbox {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s ease;
+        }
+
+        a:hover {
+            border-bottom-color: var(--accent);
+        }
+
+        hr {
+            border: none;
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--border), transparent);
+            margin: 2em 0;
+            opacity: 0.6;
+        }
+
+        body.dark hr {
+            background: linear-gradient(to right, transparent, var(--border), transparent);
+            opacity: 0.8;
+        }
+
+        .mermaid {
+            background: var(--panel-bg);
+            border-radius: 8px;
+            padding: 16px;
+            margin: 1em 0;
+            border: 2px solid var(--border);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        @media print {
+            body>*:not(#preview) {
+                display: none !important;
+            }
+
+            body {
+                margin: 0;
+                padding: 0;
+                background: white;
+                color: black;
+                font-size: 100%;
+            }
+
+            h1,
+            h2,
+            h3 {
+                color: #0b3d91 !important;
+            }
+
+            mark {
+                background-color: yellow !important;
+                -webkit-print-color-adjust: exact; /* Chrome, Edge, Safari用 */
+                print-color-adjust: exact;         /* 標準設定 */
+            }
+
+            #preview {
+                display: block !important;
+                border: none;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                background: transparent;
+                min-height: auto;
+            }
+
+            pre {
+                white-space: pre-wrap;
+                overflow: visible;
+            }
+        }
+
+        @media screen and (min-width: 800px) {
+            body:not(.vertical-layout) {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: auto auto auto 1fr;
+                column-gap: 20px;
+                row-gap: 6px;
+                align-items: start;
+            }
+
+            body:not(.vertical-layout) {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                /* 行の定義を変更: ヘッダー, タイトル, エディタ */
+                grid-template-rows: auto auto 1fr;
+                column-gap: 20px;
+                row-gap: 6px;
+                align-items: start;
+            }
+
+            /* 新しいヘッダーラッパーを全幅に設定 */
+            body:not(.vertical-layout) #sticky-header {
+                grid-column: 1 / 3;
+                grid-row: 1 / 2;
+            }
+
+            body:not(.vertical-layout) .input-header {
+                grid-column: 1 / 2;
+                grid-row: 2 / 3;
+            
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            body:not(.vertical-layout) #md-input {
+                grid-column: 1 / 2;
+                grid-row: 3 / 4;
+            }
+
+            body:not(.vertical-layout) .preview-header {
+                grid-column: 2 / 3;
+                grid-row: 2 / 3;
+            }
+
+            body:not(.vertical-layout) #preview {
+                grid-column: 2 / 3;
+                grid-row: 3 / 4;
+            }
+        }
+
+        /* ▼▼▼ Gemini風コードブロック用CSS ▼▼▼ */
+        .code-block-wrapper {
+            margin: 1em 0;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--code-bg);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 16px;
+            background: rgba(0, 0, 0, 0.03);
+            /* ヘッダー背景を少し暗く */
+            border-bottom: 1px solid var(--border);
+            font-family: sans-serif;
+            user-select: none;
+        }
+
+        body.dark .code-header {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .code-lang {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--secondary);
+            text-transform: uppercase;
+            /* 言語名を大文字表示 */
+        }
+
+        /* 既存のpreタグのスタイルをラッパー内でリセット */
+        .code-block-wrapper pre {
+            margin: 0;
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+            background: transparent;
+            /* 背景はラッパーに任せる */
+        }
+
+        /* ▼▼▼ 追加: ヘッダー固定用スタイル ▼▼▼ */
+        #sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 900;
+            /* bodyのpadding(20px)を打ち消して画面端まで広げる */
+            margin: -20px -20px 0 -20px;
+            padding: 20px 20px 10px 20px;
+            /* 背景色を設定（透けないようにする） */
+            background: var(--bg-gradient-start);
+            /* 少しすりガラス効果を入れてモダンに */
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s ease;
+        }
+
+        /* ダークモード時のヘッダー背景調整 */
+        body.dark #sticky-header {
+            background: rgba(26, 32, 44, 0.95);
+        }
+        /* ▼▼▼ 追加: タイトルと入力欄の間隔を強制的に詰める設定 ▼▼▼ */
+
+        /* 1. 見出し周りの余白を完全にゼロにする */
+        .input-header, 
+        .preview-header {
+            margin-bottom: 0 !important;
+            padding-bottom: 5px !important; /* わずかな隙間だけ残す */
+            min-height: 0 !important;
+        }
+
+        .input-header h2, 
+        .preview-header h2 {
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+            line-height: 1.2 !important;
+        }
+
+        /* 2. PCレイアウト時の行の高さ計算を修正 */
+        @media screen and (min-width: 800px) {
+            body:not(.vertical-layout) {
+                /* 2行目(タイトル)の高さを auto ではなく min-content(中身ぴったり) に強制 */
+                grid-template-rows: auto min-content 1fr !important;
+                /* 上下の要素の間隔を詰める */
+                row-gap: 0 !important;
+            }
+
+            /* タイトルをグリッドセルの「下」に寄せて、下の入力欄に密着させる */
+            body:not(.vertical-layout) .input-header,
+            body:not(.vertical-layout) .preview-header {
+                align-self: end !important;
+            }
+        }
+
+/* ▼▼▼ 追加：余白完全削除のための強力な設定 ▼▼▼ */
+
+        /* 1. ボタンエリアの余白（元のstyle="margin: 16px 0"）を強制的に削除 */
+        #sticky-header .button-area {
+            margin-bottom: 0 !important; /* 下の余白を0に */
+            padding-bottom: 8px !important; /* 最低限の隙間だけ確保 */
+        }
+
+        /* 2. 固定ヘッダー自体の下側余白を削除 */
+        #sticky-header {
+            padding-bottom: 0 !important;
+            margin-bottom: 0 !important;
+            border-bottom: 1px solid var(--border); /* 区切り線を表示 */
+        }
+
+        /* 3. 「Markdown入力」見出しの上側を詰める */
+        .input-header, 
+        .preview-header {
+            margin-top: 0 !important;
+            padding-top: 8px !important; /* ヘッダー直下に少しだけ隙間 */
+            align-self: start !important; /* 上に寄せる */
+        }
+
+        /* 4. グリッドレイアウトの行間を完全に0にする */
+        @media screen and (min-width: 800px) {
+            body:not(.vertical-layout) {
+                row-gap: 0 !important;
+                /* 行の高さを厳密に指定: ヘッダー(自動), タイトル(中身のみ), エディタ(残り) */
+                grid-template-rows: auto min-content 1fr !important;
+            }
+        }
+                /* ============================================================================
+           TOC (目次) 専用スタイル
+        ============================================================================ */
+        
+        /* TOC項目のカスタムスタイル */
+        .toc-item {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            position: relative;
+            padding-left: 16px;
+        }
+
+        /* 折りたたみアイコン */
+        .toc-collapse-icon {
+            display: inline-block;
+            margin-right: 4px;
+            cursor: pointer;
+            user-select: none;
+            width: 16px;
+            height: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            transition: transform 0.2s ease;
+        }
+
+        .toc-collapse-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        /* 子要素の表示/非表示 */
+        .toc-item.has-children.collapsed + .toc-children {
+            display: none;
+        }
+
+        .toc-children {
+            display: block;
+        }
+
+        /* TOCドロップダウンをスクロール可能に */
+        #toc-dropdown {
+            max-height: 400px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        /* スクロールバーのスタイリング（Webkit系ブラウザ） */
+        #toc-dropdown::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #toc-dropdown::-webkit-scrollbar-track {
+            background: var(--code-bg);
+            border-radius: 4px;
+        }
+
+        #toc-dropdown::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        #toc-dropdown::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary);
+        }
+
+        /* プレビュー領域にスムーズスクロールを適用 */
+        #preview {
+            scroll-behavior: smooth;
+        }
+        /* プレビュー内の見出しにスクロールオフセットを設定 */
+        #preview h1,
+        #preview h2,
+        #preview h3,
+        #preview h4,
+        #preview h5,
+        #preview h6 {
+            scroll-margin-top: 150px; /* sticky-headerの高さ + 余裕 */
+        }
+
+        /* マーカー（ハイライト）のスタイル */
+        mark {
+            background-color: #ffeb3b; /* 黄色のラインマーカー風 */
+            color: inherit;
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+        /* ダークモード時の色調整 */
+        body.dark mark {
+            background-color: #f59e0b;
+            color: #000;
+        }
+        .context-menu {
+            position: fixed;
+            z-index: 10000;
+            background: #ffffff;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 180px;
+            padding: 5px 0;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .context-menu-item {
+            padding: 10px 15px;
+            transition: background 0.2s;
+        }
+
+        .context-menu-item:hover {
+            background-color: #f7fafc;
+            color: #3182ce;
+        }
+
+        .context-menu hr {
+            border: 0;
+            border-top: 1px solid #edf2f7;
+            margin: 5px 0;
+        }
+
+        .custom-modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 700px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="custom-context-menu" class="context-menu" style="display: none;">
+        <div class="context-menu-item" onclick="handleEditAction('highlight-preview')">🖍️ ハイライト (H)</div>
+        <div class="context-menu-item" onclick="handleEditAction('unhighlight-preview')">🧹 マークを消去</div>
+        <hr>
+        <div class="context-menu-item" onclick="hideContextMenu()">キャンセル</div>
+    </div>
+    <div id="sticky-header">
+        <div class="info-container">
+        <div id="file-info">
+            <label>📄 ファイル:</label>
+            <span id="current-file">(新規)</span>
+        </div>
+
+        <div id="stats-info">
+            <div class="stat-row">
+                <span class="stat-label">📊 文字数:</span>
+                <span class="stat-value" id="char-count">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">⚖️ 文字数(半角0.5):</span>
+                <span class="stat-value" id="char-count-weighted">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">🔤 推定トークン数:</span>
+                <span class="stat-value" id="token-count">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">📝 単語数:</span>
+                <span class="stat-value" id="word-count">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">📄 行数:</span>
+                <span class="stat-value" id="line-count">0</span>
+            </div>
+        </div>
+        </div>
+
+        <div class="button-area" style="margin: 16px 0;">
+        <div class="button-section">
+            <div class="dropdown-container">
+                <button class="button" id="file-dropdown-button">📁 ファイル ▼</button>
+                <div class="dropdown-menu" id="file-dropdown">
+                    <div class="dropdown-item" data-action="open">📂 開く</div>
+                    <div class="dropdown-item" data-action="save">💾 保存</div>
+                    <div class="dropdown-item" data-action="save-as">💾 名前を付けて保存</div>
+                    <div class="dropdown-item" data-action="print">🖨️ 印刷</div>
+                </div>
+            </div>
+
+            <div class="dropdown-container">
+                <button class="button" id="edit-dropdown-button">✏️ 編集 ▼</button>
+                <div class="dropdown-menu" id="edit-dropdown">
+                    <div class="dropdown-item" data-action="clear">🗑️ クリア</div>
+                    <div class="dropdown-item" data-action="punctuation">🔄 句読点の入れ替え</div>
+                    <div class="dropdown-item" data-action="copy-all">📋 全コピー</div>
+                    <div class="dropdown-item" data-action="highlight-preview">🖍️ ハイライト</div>
+                    <div class="dropdown-item" data-action="unhighlight-preview">🧹 ハイライトを消去</div>
+                    <div class="dropdown-item" data-action="clear-all-highlights">✨ すべてのハイライトを解除</div>
+                </div>
+            </div>
+
+            <div class="dropdown-container">
+                <button class="button" id="view-dropdown-button">👁️ 表示 ▼</button>
+                <div class="dropdown-menu" id="view-dropdown">
+                    <div class="dropdown-item" data-action="toggle-theme">🌙 ダークモード</div>
+                    <div class="dropdown-item" data-action="toggle-layout">📱 縦置き</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="button-divider"></div>
+
+        <div class="button-section">
+            <div class="dropdown-container">
+                <button class="button" id="export-dropdown-button">📤 エクスポート ▼</button>
+                <div class="dropdown-menu" id="export-dropdown">
+                    <div class="dropdown-item" data-format="html">HTML形式</div>
+                    <div class="dropdown-item" data-format="docx">DOCX形式</div>
+                </div>
+            </div>
+
+            <div class="dropdown-container">
+                <button class="button" id="ai-dropdown-button">🤖 AI統合 ▼</button>
+                <div class="dropdown-menu" id="ai-dropdown">
+                    <div class="dropdown-item" onclick="setGeminiKey()">🔑 APIキー設定</div>
+                    <div class="dropdown-item" onclick="summarizeContent()">📝 AI要約を実行</div>
+                    
+                    <hr style="margin: 4px 0; border: 0; border-top: 1px solid #eee;">
+                    
+                    <div class="dropdown-item" data-ai="openai">OpenAI ChatGPT</div>
+                    <div class="dropdown-item" data-ai="claude">Anthropic Claude</div>
+                    <div class="dropdown-item" data-ai="gemini">Google Gemini</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="button-divider"></div>
+
+        <div class="button-section">
+            <label for="font-size-select" style="font-size: 13px; font-weight: 500; color: var(--fg);">表示倍率:</label>
+            <select id="font-size-select">
+                <option value="80">80%</option>
+                <option value="90">90%</option>
+                <option value="100" selected>100%</option>
+                <option value="110">110%</option>
+                <option value="120">120%</option>
+            </select>
+        </div>
+
+        <div class="button-divider"></div>
+
+        <div class="button-section">
+            <button class="button button-secondary" id="help-button">❓ ヘルプ</button>
+            <div class="dropdown-container">
+                <button class="button button-secondary" id="toc-dropdown-button">📑 目次 ▼</button>
+                <div class="dropdown-menu" id="toc-dropdown">
+                    <div class="dropdown-item" style="color: var(--secondary); font-style: italic;">見出しがありません</div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <div class="input-header">
+        <h2>✏️ Markdown 入力</h2>
+        <div class="md-toolbar" aria-label="Markdown tools">
+            <button class="button button-secondary mdtool" type="button" onclick="toggleHeading(1)"><b>H1</b></button>
+            <button class="button button-secondary mdtool" type="button" onclick="toggleHeading(2)"><b>H2</b></button>
+            <button class="button button-secondary mdtool" type="button" onclick="toggleHeading(3)"><b>H3</b></button>
+
+            <div class="button-divider" style="height: 18px;"></div>
+            <button class="button button-secondary mdtool" type="button" onclick="toggleBold()"><b>B</b></button>
+            <button class="button button-secondary mdtool" type="button" onclick="toggleItalic()"><i>I</i></button>
+            <button class="button button-secondary mdtool" type="button" onclick="toggleInlineCode()">`</button>
+            <button class="button button-secondary mdtool" type="button" data-md="codeblock" title="コードブロック (``` を2行)">```</button>
+            <div class="button-divider" style="height: 18px;"></div>
+            <button class="button button-secondary mdtool" type="button" onclick="toggleUnorderedList()">•</button>
+            <button class="button button-secondary mdtool" type="button" onclick="toggleOrderedList()">1.</button>
+            <div class="button-divider" style="height: 18px;"></div>
+            <button class="button button-secondary mdtool" type="button" data-md="table2x2" title="2×2表を挿入">表</button>
+        </div>
+
+        </div>
+
+    <textarea id="md-input" placeholder="ここに Markdown を入力してください..."></textarea>
+
+    
+    <div class="preview-header">
+        <h2>👁️ プレビュー</h2>
+    </div>
+
+    <div id="preview"></div>
+
+    <div id="custom-dialog-overlay" class="custom-dialog-overlay">
+        <div class="custom-dialog">
+            <div class="custom-dialog-title" id="dialog-title">確認</div>
+            <div class="custom-dialog-message" id="dialog-message"></div>
+            <div class="custom-dialog-buttons" id="dialog-buttons"></div>
+        </div>
+    </div>
+
+    <div id="summary-modal" class="custom-modal" style="display: none;">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="margin: 0;">✨ AI要約結果 (箇条書き)</h3>
+                <div style="display: flex; gap: 8px;">
+                    <button id="copy-summary-btn" onclick="copySummary(this)" style="padding: 5px 12px; background: #edf2f7; border: 1px solid #cbd5e0; border-radius: 4px; cursor: pointer;">📋 コピー</button>
+                    <button onclick="closeSummary()" style="padding: 5px 10px;">✕</button>
+                </div>
+            </div>
+            <div id="summary-text" style="white-space: pre-wrap; text-align: left; max-height: 400px; overflow-y: auto; border: 1px solid #eee; padding: 15px; border-radius: 8px; background: #fafafa; font-family: inherit;"></div>
+            <div style="margin-top: 15px;">
+                <button onclick="closeSummary()" style="padding: 8px 20px;">閉じる</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked@11/marked.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js"></script>
+    </script>
+
+    <script>
+        const input = document.getElementById("md-input");
+        const preview = document.getElementById("preview");
+
+        const baseBodyFontSize = 16;
+        const baseTextareaFontSize = 14;
+
+        let isDirty = false;
+        let currentFileHandle = null;
+        let isJp = true; // 句読点切り替え用フラグ
+        let undoStack = [];
+        let justCleared = false;
+        let lastPreviewSelection = "";
+        let geminiApiKey = ""; // メモリに保持
+        function setCurrentFileLabel(filename) {
+            const label = document.getElementById("current-file");
+            if (label) {
+                label.textContent = filename;
+            }
+        }
+
+        /* ============================================================================
+           marked 設定 (MathJax & Checkbox Fix & Code Block Fix)
+        ============================================================================ */
+        const renderer = new marked.Renderer();
+
+        renderer.checkbox = function (checked) {
+            return `<input type="checkbox" class="task-list-item-checkbox" ${checked ? 'checked' : ''}> `;
+        };
+
+        renderer.listitem = function (text, task, checked) {
+            if (task) {
+                return `<li class="task-list-item">${text}</li>`;
+            } else {
+                return `<li>${text}</li>`;
+            }
+        };
+
+        renderer.code = function (code, language) {
+            if (language === "mermaid") {
+                return `<div class="mermaid">${code}</div>`;
+            }
+
+            const displayLang = (language || 'text').toUpperCase();
+            const validLanguage = (window.hljs && language && hljs.getLanguage(language)) ? language : 'plaintext';
+
+            let codeContent = '';
+            if (window.hljs) {
+                try {
+                    const highlighted = hljs.highlight(code, { language: validLanguage }).value;
+                    codeContent = `<code class="hljs language-${validLanguage}">${highlighted}</code>`;
+                } catch (e) {
+                    codeContent = `<code class="language-${validLanguage}">${escapeHtml(code)}</code>`;
+                }
+            } else {
+                codeContent = `<code class="language-${language || ''}">${escapeHtml(code)}</code>`;
+            }
+
+            return `
+            <div class="code-block-wrapper">
+                <div class="code-header">
+                    <span class="code-lang">${language || 'Text'}</span>
+                    <button class="copy-code-btn" onclick="copyCodeBlock(this)" title="コピー">
+                        <span class="copy-icon">📋</span>
+                    </button>
+                </div>
+                <pre>${codeContent}</pre>
+            </div>
+            `;
+        };
+
+        window.copyCodeBlock = async function (btn) {
+            const wrapper = btn.closest('.code-block-wrapper');
+            const codeElement = wrapper.querySelector('code');
+            if (!codeElement) return;
+            const textToCopy = codeElement.innerText;
+            try {
+                await navigator.clipboard.writeText(textToCopy);
+                const originalContent = btn.innerHTML;
+                btn.innerHTML = '✅';
+                setTimeout(() => {
+                    btn.innerHTML = originalContent;
+                }, 2000);
+            } catch (err) {
+                console.error('Copy failed:', err);
+                customAlert('コピーに失敗しました');
+            }
+        };
+
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
+
+        marked.setOptions({
+            renderer: renderer,
+            gfm: true,
+            breaks: true
+        });
+
+        /* ============================================================================
+           プレビュー更新 & MathJaxレンダリング & インタラクティブ機能
+        ============================================================================ */
+        function updatePreview() {
+            let text = input.value || "";
+            text = text.replace(/(\$\$[\s\S]*?\$\$)|(\$[^$\n]*?\$)/g, (match) => {
+                return match.replace(/\\/g, "\\\\");
+            });
+
+            preview.innerHTML = marked.parse(text);
+
+            if (typeof window.mermaid !== "undefined") {
+                const mermaidBlocks = preview.querySelectorAll(".mermaid");
+                if (mermaidBlocks.length) {
+                    window.mermaid.init(undefined, mermaidBlocks);
+                }
+            }
+
+            // 修正後: 関数の存在まで確認するようにします
+            if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+                window.MathJax.typesetPromise([preview])
+                    .catch((err) => console.log('MathJax error:', err));
+            }
+            bindCheckboxes();
+            updateStats(input.value || "");
+            generateTOC();
+        }
+
+        /* ============================================================================
+           TOC (Table of Contents) 機能
+        ============================================================================ */
+        function generateTOC() {
+            const tocDropdown = document.getElementById('toc-dropdown');
+            if (!tocDropdown) return;
+
+            // プレビュー内のすべての見出しを取得
+            const headings = preview.querySelectorAll('h1, h2, h3, h4');
+            
+            // TOCが空の場合
+            if (headings.length === 0) {
+                tocDropdown.innerHTML = '<div class="dropdown-item" style="color: var(--secondary); font-style: italic;">見出しがありません</div>';
+                return;
+            }
+
+            // 階層構造を構築
+            const tocTree = buildTOCTree(headings);
+            
+            // TOCをレンダリング
+            tocDropdown.innerHTML = '';
+            renderTOCTree(tocTree, tocDropdown, 0);
+        }
+
+        // 見出しから階層ツリーを構築
+        function buildTOCTree(headings) {
+            const tree = [];
+            const stack = [{ level: 0, children: tree }];
+            
+            headings.forEach((heading, index) => {
+                // 見出しにIDを付与
+                if (!heading.id) {
+                    heading.id = `heading-${index}`;
+                }
+                
+                const level = parseInt(heading.tagName.substring(1));
+                const node = {
+                    heading: heading,
+                    level: level,
+                    children: [],
+                    id: heading.id,
+                    text: heading.textContent.trim()
+                };
+                
+                // 適切な親を見つける
+                while (stack.length > 1 && stack[stack.length - 1].level >= level) {
+                    stack.pop();
+                }
+                
+                // 現在のノードを追加
+                stack[stack.length - 1].children.push(node);
+                stack.push(node);
+            });
+            
+            return tree;
+        }
+
+        // TOCツリーをレンダリング
+        function renderTOCTree(nodes, container, depth) {
+            nodes.forEach((node, index) => {
+                // TOC項目を作成
+                const item = document.createElement('div');
+                item.className = 'dropdown-item toc-item';
+                if (node.children.length > 0) {
+                    item.classList.add('has-children');
+                    item.classList.add('collapsed'); // デフォルトで折りたたむ
+                }
+                
+                // インデント
+                const indent = depth * 16;
+                item.style.paddingLeft = `${16 + indent}px`;
+                
+                // 折りたたみアイコン（子要素がある場合）
+                if (node.children.length > 0) {
+                    const collapseIcon = document.createElement('span');
+                    collapseIcon.className = 'toc-collapse-icon collapsed'; // デフォルトで折りたたみ状態
+                    collapseIcon.textContent = '▼';
+                    collapseIcon.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        item.classList.toggle('collapsed');
+                        collapseIcon.classList.toggle('collapsed');
+                    });
+                    item.appendChild(collapseIcon);
+                } else {
+                    // スペーサーを追加して位置を揃える
+                    const spacer = document.createElement('span');
+                    spacer.style.width = '20px';
+                }
+                
+                // レベルに応じたアイコン
+                const icons = { 1: '📌', 2: '▪️', 3: '▫️', 4: '•' };
+                const icon = icons[node.level] || '•';
+                
+                // テキスト（最大50文字）
+                let headingText = node.text;
+                if (headingText.length > 50) {
+                    headingText = headingText.substring(0, 50) + '...';
+                }
+                
+                const textNode = document.createTextNode(`${icon} ${headingText}`);
+                item.appendChild(textNode);
+                
+                // フォントサイズ調整
+                item.style.fontSize = `${14 - depth * 0.5}px`;
+                
+                // クリックイベント：該当見出しにスクロール
+                item.addEventListener('click', (e) => {
+                    if (e.target === item || e.target === textNode) {
+                        node.heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        document.getElementById('toc-dropdown').classList.remove('show');
+                    }
+                });
+                
+                container.appendChild(item);
+                
+                // 子要素がある場合は再帰的にレンダリング
+                if (node.children.length > 0) {
+                    const childContainer = document.createElement('div');
+                    childContainer.className = 'toc-children';
+                    container.appendChild(childContainer);
+                    renderTOCTree(node.children, childContainer, depth + 1);
+                }
+            });
+        }
+
+        function bindCheckboxes() {
+            const checkboxes = preview.querySelectorAll('input.task-list-item-checkbox');
+            checkboxes.forEach((cb, index) => {
+                cb.addEventListener('change', function () {
+                    toggleSourceCheckbox(index, this.checked);
+                });
+            });
+        }
+
+        function toggleSourceCheckbox(targetIndex, isChecked) {
+            const text = input.value;
+            const regex = /^([\s]*[-*+]\s+\[)([ xX])(\])/gm;
+            let count = 0;
+            const newText = text.replace(regex, (fullMatch, prefix, content, suffix) => {
+                if (count === targetIndex) {
+                    count++;
+                    const newMark = isChecked ? 'x' : ' ';
+                    return `${prefix}${newMark}${suffix}`;
+                }
+                count++;
+                return fullMatch;
+            });
+
+            if (newText !== text) {
+                input.value = newText;
+                isDirty = true;
+                updatePreview();
+            }
+        }
+
+        function toggleBold() {
+        toggleWrap('**', '**');
+        }
+
+        function toggleItalic() {
+        toggleWrap('*', '*');
+        }
+
+        function toggleInlineCode() {
+        toggleWrap('`', '`');
+        }
+
+        function toggleWrap(prefix, suffix) {
+        const el = input;
+        const start = el.selectionStart;
+        const end   = el.selectionEnd;
+        const value = el.value;
+
+        if (start === end) return;
+
+        const before = value.slice(start - prefix.length, start);
+        const after  = value.slice(end, end + suffix.length);
+
+        if (before === prefix && after === suffix) {
+            // 解除
+            el.value =
+            value.slice(0, start - prefix.length) +
+            value.slice(start, end) +
+            value.slice(end + suffix.length);
+
+            el.selectionStart = start - prefix.length;
+            el.selectionEnd   = end - prefix.length;
+        } else {
+            // 付与
+            el.value =
+            value.slice(0, start) +
+            prefix +
+            value.slice(start, end) +
+            suffix +
+            value.slice(end);
+
+            el.selectionStart = start + prefix.length;
+            el.selectionEnd   = end + prefix.length;
+        }
+
+        isDirty = true;
+        updatePreview();
+        }
+
+        function toggleHeading(level) {
+        const el = input;
+        const pos = el.selectionStart;
+        const value = el.value;
+
+        const lineStart = value.lastIndexOf('\n', pos - 1) + 1;
+        const lineEnd = value.indexOf('\n', pos);
+        const end = lineEnd === -1 ? value.length : lineEnd;
+
+        const line = value.slice(lineStart, end);
+        const mark = '#'.repeat(level) + ' ';
+
+        let newLine;
+        const m = line.match(/^(#{1,6})\s+/);
+
+        if (m && m[1].length === level) {
+            // 解除
+            newLine = line.replace(/^#{1,6}\s+/, '');
+        } else if (m) {
+            // レベル変更
+            newLine = line.replace(/^#{1,6}\s+/, mark);
+        } else {
+            // 付与
+            newLine = mark + line;
+        }
+
+        el.value = value.slice(0, lineStart) + newLine + value.slice(end);
+        el.selectionStart = el.selectionEnd = lineStart + newLine.length;
+
+        isDirty = true;
+        updatePreview();
+        }
+
+        function toggleUnorderedList() {
+        toggleLinePrefix(/^[-*+]\s+/, '- ');
+        }
+
+        function toggleOrderedList() {
+        toggleLinePrefix(/^\d+\.\s+/, '1. ');
+        }
+
+        function toggleLinePrefix(regex, prefix) {
+        const el = input;
+        const start = el.selectionStart;
+        const end   = el.selectionEnd;
+        const value = el.value;
+
+        const blockStart = value.lastIndexOf('\n', start - 1) + 1;
+        const blockEnd = end === start
+            ? value.indexOf('\n', start) === -1 ? value.length : value.indexOf('\n', start)
+            : end;
+
+        const block = value.slice(blockStart, blockEnd);
+        const lines = block.split('\n');
+
+        const toggled = lines.map(line => {
+            if (!line.trim()) return line;
+            return regex.test(line)
+            ? line.replace(regex, '')
+            : prefix + line;
+        }).join('\n');
+
+        el.value =
+            value.slice(0, blockStart) +
+            toggled +
+            value.slice(blockEnd);
+
+        el.selectionStart = blockStart;
+        el.selectionEnd = blockStart + toggled.length;
+
+        isDirty = true;
+        updatePreview();
+        }
+
+
+        /* ============================================================================
+           共通機能
+        ============================================================================ */
+        // ファイル名生成ユーティリティ（新規追加）
+        function generateDefaultFilename(extension) {
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const d = String(now.getDate()).padStart(2, '0');
+            const H = String(now.getHours()).padStart(2, '0');
+            const M = String(now.getMinutes()).padStart(2, '0');
+            const S = String(now.getSeconds()).padStart(2, '0');
+            const timestamp = `${y}${m}${d}-${H}${M}${S}`;
+
+            let text = input.value.trim();
+            let title = "untitled";
+
+            if (text) {
+                // 最初の行を取得
+                const firstLine = text.split('\n')[0];
+                // 見出し記号(#)や空白を除去してクリーンにする
+                let cleanTitle = firstLine.replace(/^[#\s]+/, '').trim();
+                // ファイル名に使えない文字を置換
+                cleanTitle = cleanTitle.replace(/[\\/:*?"<>|]/g, '_');
+
+                if (cleanTitle) {
+                    // 10文字制限
+                    title = cleanTitle.substring(0, 10);
+                }
+            }
+
+            return `${timestamp}-${title}${extension}`;
+        }
+
+        function customConfirm(message, title = "確認") {
+            return new Promise((resolve) => {
+                const overlay = document.getElementById("custom-dialog-overlay");
+                const titleEl = document.getElementById("dialog-title");
+                const messageEl = document.getElementById("dialog-message");
+                const buttonsEl = document.getElementById("dialog-buttons");
+
+                titleEl.textContent = title;
+                messageEl.textContent = message;
+                buttonsEl.innerHTML = '';
+
+                const cancelBtn = document.createElement("button");
+                cancelBtn.textContent = "キャンセル";
+                cancelBtn.className = "dialog-btn-secondary";
+                cancelBtn.onclick = () => { overlay.classList.remove("show"); resolve(false); };
+
+                const okBtn = document.createElement("button");
+                okBtn.textContent = "OK";
+                okBtn.className = "dialog-btn-primary";
+                okBtn.onclick = () => { overlay.classList.remove("show"); resolve(true); };
+
+                buttonsEl.appendChild(cancelBtn);
+                buttonsEl.appendChild(okBtn);
+                overlay.classList.add("show");
+            });
+        }
+
+        function customAlert(message, title = "通知") {
+            return new Promise((resolve) => {
+                const overlay = document.getElementById("custom-dialog-overlay");
+                const titleEl = document.getElementById("dialog-title");
+                const messageEl = document.getElementById("dialog-message");
+                const buttonsEl = document.getElementById("dialog-buttons");
+
+                titleEl.textContent = title;
+                messageEl.textContent = message;
+                buttonsEl.innerHTML = '';
+
+                const okBtn = document.createElement("button");
+                okBtn.textContent = "OK";
+                okBtn.className = "dialog-btn-primary";
+                okBtn.onclick = () => { overlay.classList.remove("show"); resolve(true); };
+
+                buttonsEl.appendChild(okBtn);
+                overlay.classList.add("show");
+            });
+        }
+
+        function updateStats(text) {
+            const charCount = text.length;
+            document.getElementById("char-count").textContent = charCount.toLocaleString();
+            const lineCount = text.split('\n').length;
+            document.getElementById("line-count").textContent = lineCount.toLocaleString();
+
+            let wordCount = 0;
+            if (text.trim().length > 0) {
+                const englishWords = text.match(/[a-zA-Z0-9]+/g);
+                wordCount += englishWords ? englishWords.length : 0;
+                const japaneseChars = text.match(/[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf\uff00-\uffef]/g);
+                wordCount += japaneseChars ? japaneseChars.length : 0;
+            }
+            document.getElementById("word-count").textContent = wordCount.toLocaleString();
+
+            const japaneseChars = text.match(/[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf\uff00-\uffef]/g);
+            const japaneseCount = japaneseChars ? japaneseChars.length : 0;
+            const nonJapaneseCount = text.length - japaneseCount;
+            const estimatedTokens = Math.ceil(japaneseCount * 1.5 + nonJapaneseCount / 4);
+            document.getElementById("token-count").textContent = estimatedTokens.toLocaleString();
+
+            // 文字数(半角0.5)計算
+            const textNoLineBreaks = text.replace(/[\r\n]/g, '');
+            let weightedCount = 0;
+            for (const char of textNoLineBreaks) {
+                if (char.match(/^[\x20-\x7e\uff61-\uff9f]$/)) {
+                    weightedCount += 0.5;
+                } else {
+                    weightedCount += 1;
+                }
+            }
+            document.getElementById("char-count-weighted").textContent = weightedCount.toString();
+        }
+
+        
+        /* ============================================================================
+           Markdownツール（プレビュー側ボタン）: 選択範囲に対する簡易編集
+        ============================================================================ */
+        function getSelectionRange(el) {
+            return {
+                start: el.selectionStart ?? 0,
+                end: el.selectionEnd ?? 0,
+                value: el.value ?? ""
+            };
+        }
+
+        function setSelectionRange(el, start, end) {
+            el.focus();
+            el.setSelectionRange(start, end);
+        }
+
+        function replaceRange(str, start, end, replacement) {
+            return str.slice(0, start) + replacement + str.slice(end);
+        }
+
+        function getLineBounds(text, index) {
+            const lineStart = text.lastIndexOf('\n', index - 1) + 1;
+            const lineEndRaw = text.indexOf('\n', index);
+            const lineEnd = (lineEndRaw === -1) ? text.length : lineEndRaw;
+            return { lineStart, lineEnd };
+        }
+
+        function applyWrap(prefix, suffix) {
+            const el = input;
+            const { start, end, value } = getSelectionRange(el);
+            const selected = value.slice(start, end);
+            const insertText = selected.length ? selected : "テキスト";
+            const replaced = prefix + insertText + suffix;
+            el.value = replaceRange(value, start, end, replaced);
+            isDirty = true;
+            updatePreview();
+
+            // 挿入した「テキスト」を選択状態にする（選択が無かった時だけ）
+            if (!selected.length) {
+                const selStart = start + prefix.length;
+                const selEnd = selStart + insertText.length;
+                setSelectionRange(el, selStart, selEnd);
+            } else {
+                const caret = start + replaced.length;
+                setSelectionRange(el, caret, caret);
+            }
+        }
+
+        function applyHeading(level) {
+            const el = input;
+            const { start, end, value } = getSelectionRange(el);
+            const { lineStart, lineEnd } = getLineBounds(value, start);
+            const line = value.slice(lineStart, lineEnd);
+
+            const desired = '#'.repeat(level) + ' ';
+            const m = line.match(/^(#{1,6})\s+/);
+
+            let newLine;
+            if (m) {
+                const currentLevel = m[1].length;
+                // 同じレベルなら解除、違うなら置換
+                if (currentLevel === level) {
+                    newLine = line.replace(/^#{1,6}\s+/, '');
+                } else {
+                    newLine = line.replace(/^#{1,6}\s+/, desired);
+                }
+            } else {
+                newLine = desired + line;
+            }
+
+            el.value = value.slice(0, lineStart) + newLine + value.slice(lineEnd);
+            isDirty = true;
+            updatePreview();
+
+            // カーソルを行頭（見出し記号の後）に寄せる
+            const newCaret = lineStart + (newLine.startsWith('#') ? (newLine.match(/^#{1,6}\s+/)?.[0].length || 0) : 0);
+            setSelectionRange(el, newCaret, newCaret);
+        }
+
+        function applyList(kind) {
+            const el = input;
+            const { start, end, value } = getSelectionRange(el);
+
+            // 選択が無ければ「現在行」を対象にする
+            const s = (start === end) ? getLineBounds(value, start).lineStart : start;
+            const e = (start === end) ? getLineBounds(value, start).lineEnd : end;
+
+            const block = value.slice(s, e);
+            const lines = block.split(/\r?\n/);
+
+            const newLines = lines.map((ln, i) => {
+                // 空行はそのまま
+                if (!ln.trim()) return ln;
+
+                if (kind === 'ul') {
+                    if (/^\s*[-*+]\s+/.test(ln)) return ln; // 既に箇条書き
+                    return '- ' + ln.replace(/^\s+/, '');
+                }
+
+                // ol
+                if (/^\s*\d+\.\s+/.test(ln)) return ln; // 既に番号付き
+                const n = i + 1;
+                return `${n}. ` + ln.replace(/^\s+/, '');
+            });
+
+            const replaced = newLines.join('\n');
+            el.value = value.slice(0, s) + replaced + value.slice(e);
+            isDirty = true;
+            updatePreview();
+
+            // 選択範囲を置換後ブロックに合わせる
+            setSelectionRange(el, s, s + replaced.length);
+        }
+
+        function insertCodeBlock() {
+            const el = input;
+            const { start, end, value } = getSelectionRange(el);
+
+            const block = "```\n\n```";
+
+            // 前後を空行で挟む（最低限）
+            const prefix = (start > 0 && value[start - 1] !== '\n') ? '\n' : '';
+            const suffix = (start < value.length && value[start] !== '\n') ? '\n' : '';
+
+            const insertion = prefix + block + suffix;
+            el.value = replaceRange(value, start, end, insertion);
+            isDirty = true;
+            updatePreview();
+
+            // 空行（コード内容）へカーソル
+            const caret = start + prefix.length + 4; // after first ```
+
+            setSelectionRange(el, caret, caret);
+        }
+
+        function insertTable2x2() {
+            const el = input;
+            const { start, end, value } = getSelectionRange(el);
+
+            const table = [
+                '|  | 項目A | 項目B |',
+                '|---|---|---|',
+                '| 行1 |  |  |',
+                '| 行2 |  |  |'
+            ].join('\n');
+
+            // 前後を空行で挟む（最低限）
+            const prefix = (start > 0 && value[start - 1] !== '\n') ? '\n\n' : '';
+            const suffix = (start < value.length && value[start] !== '\n') ? '\n\n' : '\n\n';
+
+            const insertion = prefix + table + suffix;
+            el.value = replaceRange(value, start, end, insertion);
+            isDirty = true;
+            updatePreview();
+
+            const caret = start + prefix.length + insertion.indexOf('項目A');
+            setSelectionRange(el, caret, caret + 3);
+        }
+
+        function handleMarkdownTool(action) {
+            switch (action) {
+                case 'h1': return applyHeading(1);
+                case 'h2': return applyHeading(2);
+                case 'h3': return applyHeading(3);
+                case 'bold': return applyWrap('**', '**');
+                case 'italic': return applyWrap('*', '*');
+                case 'ul': return applyList('ul');
+                case 'ol': return applyList('ol');
+                case 'codeblock': return insertCodeBlock();
+                case 'table2x2': return insertTable2x2();
+                default: return;
+            }
+        }
+
+        /* ============================================================================
+           アクションロジック (ドロップダウンから呼び出される関数群)
+        ============================================================================ */
+
+        async function downloadHtml() {
+            const headingColorCSS = `<style>h1, h2, h3 { color: #0b3d91 !important; } body { font-family: sans-serif; padding: 20px; max-width: 900px; margin: 0 auto; }</style>`;
+            const content = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Export</title>' + headingColorCSS + '</head><body>' + preview.innerHTML + '</body></html>';
+            // 自動ファイル名の生成
+            const filename = generateDefaultFilename('.html');
+
+            try {
+                if (window.showSaveFilePicker) {
+                    const handle = await window.showSaveFilePicker({
+                        suggestedName: filename,
+                        types: [{ description: "HTML file", accept: { "text/html": [".html"] } }]
+                    });
+                    const writable = await handle.createWritable();
+                    await writable.write(content);
+                    await writable.close();
+                    await customAlert("✅ HTMLファイルを保存しました。");
+                } else {
+                    const blob = new Blob([content], { type: "text/html" });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url; a.download = filename; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function downloadDocx() {
+            if (typeof htmlDocx === 'undefined') return customAlert("DOCXライブラリの読み込みに失敗しました");
+            const docxStyles = `
+                <style>
+                    body { font-family: "Hiragino Kaku Gothic Pro", "Meiryo", sans-serif; }
+                    table { 
+                        width: 100%; 
+                        border-collapse: collapse; 
+                        border: 1px solid #000; 
+                    }
+                    th, td { 
+                        border: 1px solid #888; 
+                        padding: 6px; 
+                    }
+                    th {
+                        background-color: #f0f0f0; 
+                    }
+                    th[align="left"], td[align="left"] { text-align: left; }
+                    th[align="center"], td[align="center"] { text-align: center; }
+                    th[align="right"], td[align="right"] { text-align: right; }
+                    
+                    img {
+                        max-width: 100%; 
+                    }
+                </style>
+            `;
+            const htmlContent = `<!DOCTYPE html><html><head><meta charset="UTF-8">${docxStyles}</head><body>${preview.innerHTML}</body></html>`;
+            const blob = htmlDocx.asBlob(htmlContent);
+            // 自動ファイル名の生成
+            const filename = generateDefaultFilename('.docx');
+
+            try {
+                if (window.showSaveFilePicker) {
+                    const handle = await window.showSaveFilePicker({
+                        suggestedName: filename,
+                        types: [{ description: "Word Document", accept: { "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"] } }]
+                    });
+                    const writable = await handle.createWritable();
+                    await writable.write(blob);
+                    await writable.close();
+                    await customAlert("✅ DOCXファイルを保存しました。");
+                } else {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url; a.download = filename; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function saveMarkdown() {
+            const text = input.value || "";
+            try {
+                if (currentFileHandle) {
+                    const writable = await currentFileHandle.createWritable();
+                    await writable.write(text);
+                    await writable.close();
+                    isDirty = false;
+                    await customAlert("✅ 上書き保存しました。");
+                } else {
+                    saveAsMarkdown();
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function saveAsMarkdown() {
+            const text = input.value || "";
+            // 自動ファイル名の生成
+            const filename = generateDefaultFilename('.md');
+
+            try {
+                const handle = await window.showSaveFilePicker({
+                    suggestedName: filename,
+                    types: [{ description: "Markdown", accept: { "text/markdown": [".md"] } }]
+                });
+                const writable = await handle.createWritable();
+                await writable.write(text);
+                await writable.close();
+                currentFileHandle = handle;
+                setCurrentFileLabel(handle.name);
+                isDirty = false;
+                await customAlert("✅ 保存しました。");
+            } catch (e) { console.error(e); }
+        }
+
+        // 印刷時のファイル名対応関数
+        function handlePrint() {
+            const originalTitle = document.title;
+            // 拡張子なしのファイル名を生成してタイトルにセット
+            // 末尾の拡張子相当の部分は含めないほうがPDF保存時のダイアログで自然
+            const printName = generateDefaultFilename('').replace(/\.$/, '');
+            document.title = printName;
+
+            window.print();
+
+            // 印刷ダイアログが閉じた後（厳密にはブラウザによるが）タイトルを戻す試み
+            // 多くのモダンブラウザはprint()がブロッキング、またはダイアログ表示時点でタイトルを取得するため
+            // 即時戻しても反映されない可能性があるため、少し遅延させるか、afterprintイベントを使用する
+        }
+
+        // 印刷終了後にタイトルを戻すイベントリスナー
+        window.addEventListener("afterprint", () => {
+            document.title = "Markdown Viewer Advanced";
+        });
+
+
+        async function openMarkdownFile() {
+            if (isDirty && !await customConfirm("現在の内容を破棄して新しいファイルを開きますか？")) {
+                return;
+            }
+            if (window.showOpenFilePicker) {
+                try {
+                    const [handle] = await window.showOpenFilePicker();
+                    const file = await handle.getFile();
+                    input.value = await file.text();
+                    currentFileHandle = handle;
+                    setCurrentFileLabel(file.name);
+                    isDirty = false;
+                    updatePreview();
+                } catch (err) {
+                    // キャンセル時などは何もしない
+                }
+            }
+        }
+
+        async function clearContent() {
+            if (await customConfirm("内容を消去しますか？\n（未保存の変更は失われます）\n※Ctrl+Zで元に戻せます")) {
+                // クリア前の状態を保存
+                const previousState = {
+                    content: input.value,
+                    fileName: document.getElementById("current-file").textContent,
+                    fileHandle: currentFileHandle
+                };
+                undoStack.push(previousState);
+                
+                // クリア実行
+                input.value = "";
+                isDirty = false;                    // ★ true → false に変更
+                currentFileHandle = null;           // ★ 追加: ハンドルをクリア
+                setCurrentFileLabel("(新規)");      // ★ 追加: ファイル名を(新規)に
+                justCleared = true;                 // ★ 追加: フラグを立てる
+                updatePreview();
+            }
+        }
+
+        function togglePunctuation() {
+            let text = input.value;
+            if (isJp) {
+                text = text.replaceAll('。', '．').replaceAll('、', '，');
+            } else {
+                text = text.replaceAll('．', '。').replaceAll('，', '、');
+            }
+            // ドロップダウン内のテキストは固定ですが機能は維持します
+            input.value = text; isJp = !isJp; isDirty = true; updatePreview();
+            customAlert(isJp ? "「、。」モードになりました" : "「，．」モードになりました");
+        }
+
+        // 【新規追加】
+        function undo() {
+            if (undoStack.length === 0) {
+                customAlert("元に戻せる操作がありません");
+                return;
+            }
+            
+            const previousState = undoStack.pop();
+            input.value = previousState.content;
+            currentFileHandle = previousState.fileHandle;
+            setCurrentFileLabel(previousState.fileName);
+            isDirty = true;
+            justCleared = false; // フラグをクリア
+            updatePreview();
+        }
+
+        function copyAllContent() {
+            navigator.clipboard.writeText(input.value);
+            customAlert("コピーしました");
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle("dark");
+        }
+
+        function toggleLayout() {
+            document.body.classList.toggle("vertical-layout");
+        }
+
+        async function sendToAI(serviceName) {
+            const text = input.value;
+            if (!serviceName) return;
+
+            navigator.clipboard.writeText(text);
+            const urls = {
+                claude: "https://claude.ai/new",
+                openai: "https://chat.openai.com/",
+                gemini: "https://gemini.google.com/app"
+            };
+
+            if (urls[serviceName]) {
+                window.open(urls[serviceName], '_blank');
+            } else {
+                customAlert("未対応のサービスです");
+            }
+        }
+
+        function showHelp() {
+            // ヘルプのHTML内容 (mdv_help.htmlの内容をベースに、ドロップダウンUIに合わせて文言を微修正)
+            const helpHtml = `<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ヘルプ</title>
+    <style>
+        :root {
+            --primary: #4299e1;
+            --secondary: #718096;
+            --bg: #f7fafc;
+            --text: #1a202c;
+            --border: #cbd5e0;
+            --code-bg: #edf2f7;
+            --sidebar-width: 260px;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.8;
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            scroll-behavior: smooth;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: var(--sidebar-width) 1fr;
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            align-items: start;
+        }
+        .sidebar {
+            position: sticky;
+            top: 20px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+        .toc-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 12px;
+            color: var(--text);
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--primary);
+        }
+        .sidebar ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        .sidebar li {
+            margin-bottom: 6px;
+        }
+        .sidebar a {
+            display: block;
+            color: var(--secondary);
+            text-decoration: none;
+            font-size: 0.95em;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .sidebar a:hover {
+            background: var(--code-bg);
+            color: var(--primary);
+        }
+        .sidebar ul ul {
+            padding-left: 20px;
+            margin-top: 4px;
+            margin-bottom: 4px;
+        }
+        .sidebar ul ul li {
+            margin-bottom: 4px;
+        }
+        .sidebar ul ul a {
+            font-size: 0.9em;
+            color: var(--secondary);
+        }
+        .sidebar > ul > li > a {
+            font-weight: bold;
+            color: var(--text);
+            border-bottom: 1px solid #eee;
+            margin-top: 10px;
+        }
+        .content {
+            min-width: 0;
+        }
+        .content h1 {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+            margin-top: 50px;
+        }
+        .content h1:first-child {
+            margin-top: 0;
+        }
+        h2 {
+            color: var(--primary);
+            margin-top: 50px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary);
+            padding-left: 15px;
+            scroll-margin-top: 20px;
+        }
+        h3 {
+            color: var(--secondary);
+            margin-top: 30px;
+            margin-bottom: 10px;
+        }
+        h4 {
+            color: var(--secondary);
+            margin-top: 20px;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+        code {
+            background: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+            font-size: 0.9em;
+            color: #d63384;
+        }
+        pre {
+            background: var(--code-bg);
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+        }
+        pre code {
+            background: none;
+            padding: 0;
+            color: var(--text);
+        }
+        .example {
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+        }
+        .example-label {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid var(--border);
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background: var(--code-bg);
+            font-weight: bold;
+        }
+        .tip {
+            background: #e6f7ff;
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .tip::before {
+            content: "💡 ヒント: ";
+            font-weight: bold;
+            color: var(--primary);
+        }
+        @media (max-width: 800px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .sidebar {
+                position: static;
+                max-height: none;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <div class="toc-title">目次</div>
+            <ul>
+                <li><a href="#usage">🖥️ メイン画面の使い方</a>
+                    <ul>
+                        <li><a href="#info-detail">📊 ファイル情報の詳細</a></li>
+                        <li><a href="#files">📁 ファイルメニュー</a></li>
+                        <li><a href="#edit">✏️ 編集メニュー</a></li>
+                        <li><a href="#view">👁️ 表示メニュー</a></li>
+                        <li><a href="#export">📤 エクスポート機能</a></li>
+                        <li><a href="#ai">🤖 AI統合機能</a></li>
+                        <li><a href="#help-page">❓ ヘルプ</a></li>
+                        <li><a href="#font-size">📏 表示倍率</a></li>
+                        <li><a href="#toc">📑 目次機能</a></li>
+                        <li><a href="#context-menu">🖱️ 右クリックメニュー（コンテキストメニュー）</a></li>
+                        <li><a href="#alerts">⚠️ データの保存と警告</a></li>
+                    </ul>
+                </li>
+                <li><a href="#markdown-help">📖 Markdown 記法ヘルプ</a>
+                    <ul>
+                        <li><a href="#headers">🔤 見出し</a></li>
+                        <li><a href="#formatting">✍️ テキスト装飾</a></li>
+                        <li><a href="#html-tags">🎨 HTMLタグを使った装飾</a></li>
+                        <li><a href="#lists">📝 リスト</a></li>
+                        <li><a href="#links">🔗 リンク</a></li>
+                        <li><a href="#images">🖼️ 画像</a></li>
+                        <li><a href="#quotes">💬 引用</a></li>
+                        <li><a href="#code">💻 コードブロック</a></li>
+                        <li><a href="#tables">📊 表（テーブル）</a></li>
+                        <li><a href="#hr">📏 水平線</a></li>
+                        <li><a href="#tasks">☑️ タスクリスト</a></li>
+                        <li><a href="#math">🔢 数式（MathJax）</a></li>
+                        <li><a href="#mermaid">📈 Mermaid 図表</a></li>
+                        <li><a href="#others">🎯 その他・エスケープ</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+        <main class="content">
+            <h1 id="usage">🖥️ メイン画面の使い方</h1>
+            <p>このアプリは、ブラウザ上で動作する高機能なMarkdownエディタです。主な機能は以下の通りです。</p>
+
+            <h3 id="info-detail">📊 ファイル情報の詳細</h3>
+            <p>画面上部には、現在編集中のテキストに関する統計情報が表示されます。</p>
+            <ul>
+                <li><b>ファイル:</b> 現在編集中のファイル名です。新規作成の場合 (新規) と表示されます。</li>
+                <li><b>文字数:</b> 全角・半角を含めたすべての文字数です。</li>
+                <li><b>文字数(半角0.5):</b> 半角文字を0.5文字、全角文字を1文字として換算した値です。</li>
+                <li><b>推定トークン数:</b> AI（ChatGPTやGemini等）に入力した際に消費されるトークン数の概算です。<br>
+                <small>※計算式: 日本語文字数×1.5 + その他の文字数÷4 で算出しています（あくまで目安です）。</small></li>
+                <li><b>単語数:</b> 空白や句読点で区切られた単語の数です。</li>
+                <li><b>行数:</b> 改行で区切られたテキストの行数です。</li>
+            </ul>
+            <hr>
+            <h3 id="files">📁 ファイルメニュー</h3>
+            <ul>
+                <li><b>開く:</b> ローカルのMarkdownファイル（.md, .txt）を読み込みます。ドラッグ&ドロップでもファイルを開けます。</li>
+                <li><b>保存:</b> 現在の内容を上書き保存します（初回は名前を付けて保存）。</li>
+                <li><b>名前を付けて保存:</b> 別名でファイルを保存します。</li>
+                <li><b>印刷:</b> プレビュー内容を印刷ダイアログで開きます（PDF保存もここから可能です）。</li>
+            </ul>
+
+            <h3 id="edit">✏️ 編集メニュー</h3>
+            <ul>
+                <li><b>クリア:</b> 入力内容を全て消去します（Ctrl+Z で元に戻せます）。</li>
+                <li><b>句読点の入れ替え:</b> 日本語の句読点（、。）を（，．）に、またはその逆に一括変換します。</li>
+                <li><b>全コピー:</b> Markdownテキストをクリップボードにコピーします。</li>
+                <li><b>ハイライト:</b> プレビュー内で選択したテキストを黄色のマーカーでハイライト表示します。右クリックメニューからも使用できます。</li>
+                <li><b>ハイライトを消去:</b> プレビュー内で選択したテキストのハイライトを解除します。</li>
+                <li><b>すべてのハイライトを解除:</b> すべてのハイライトマークを一括で削除します。</li>
+            </ul>
+
+            <h3 id="view">👁️ 表示メニュー</h3>
+            <ul>
+                <li><b>ダークモード:</b> 画面の明暗テーマを切り替えます。</li>
+                <li><b>縦置き:</b> 入力欄とプレビューの配置を切り替えます（横並び⇔縦並び）。</li>
+            </ul>
+
+            <h3 id="export">📤 エクスポート機能</h3>
+            <p>作成したMarkdownコンテンツを様々な形式でエクスポートできます。</p>
+            <ul>
+                <li><b>HTML形式:</b> プレビュー内容をスタイル付きHTMLファイルとしてダウンロードします。</li>
+                <li><b>DOCX形式:</b> プレビュー内容をWord文書（.docx）としてダウンロードします。</li>
+            </ul>
+
+            <h3 id="ai">🤖 AI統合機能</h3>
+            <p>Markdownテキストに対してAI機能を利用できます。</p>
+
+            <h4>AI要約機能</h4>
+            <ol>
+                <li>「🔑 APIキー設定」でGoogle AI (Gemini) APIキーを設定します。全ブラウザを閉じるまでは保持されます。</li>
+                <li>「📝 AI要約を実行」をクリックすると、テキスト全体またはハイライトされた部分を箇条書きで要約します。</li>
+                <li>要約結果はモーダルウィンドウに表示され、コピーボタンでクリップボードにコピーできます。</li>
+            </ol>
+
+            <h4>AIチャットサービス連携</h4>
+            <p>入力したMarkdownテキストをAIチャットサービス（ChatGPT, Claude, Gemini）に送信するための補助機能です。</p>
+            <ol>
+                <li>「🤖 AI統合」メニューからサービスを選択します。</li>
+                <li>テキストがクリップボードにコピーされ、選択したサービスのサイトが新しいタブで開きます。</li>
+                <li>AIのチャット欄に貼り付けて（Ctrl+V）使用してください。</li>
+            </ol>
+
+            <h3 id="help-page">❓ ヘルプ</h3>
+            <p>このページを表示します。</p>
+
+            <h3 id="font-size">📏 表示倍率</h3>
+            <p>画面の文字サイズを80%〜120%の範囲で調整できます。ドロップダウンメニューから選択してください。</p>
+
+            <h3 id="toc">📑 目次機能</h3>
+            <p>Markdownの見出し（# 〜 ####）を自動的に検出し、目次として表示します。</p>
+            <ul>
+                <li>「📑 目次」ボタンをクリックするとドロップダウンメニューが開きます。</li>
+                <li>見出しをクリックするとプレビュー内の該当箇所へスムーズにスクロールします。</li>
+                <li>階層構造のある見出しは折りたたみ/展開できます。</li>
+            </ul>
+
+            <h3 id="context-menu">🖱️ 右クリックメニュー（コンテキストメニュー）</h3>
+            <p>プレビュー領域でテキストを選択し、右クリックすると以下の操作が可能です。</p>
+            <ul>
+                <li><b>🖍️ ハイライト (H):</b> 選択したテキストを黄色のマーカーでハイライト表示します。</li>
+                <li><b>🧹 マークを消去:</b> 選択範囲のハイライトを解除します。</li>
+            </ul>
+
+            <h3 id="alerts">⚠️ データの保存と警告</h3>
+            <p>テキストに変更を加えると、内部的に「未保存状態」としてマークされます。</p>
+            <ul>
+                <li><b>警告が出る操作:</b> 「ファイルを開く」「クリア」「ブラウザのタブを閉じる」際、未保存の変更があると確認ダイアログが表示されます。</li>
+                <li><b>警告が出ない操作:</b> 「HTML保存」「DOCX保存」「印刷」は、データを外部出力する操作であり、現在の編集内容を失うものではないため、警告は表示されません。</li>
+            </ul>
+
+            <div class="tip">
+            ファイルはドラッグ&ドロップでも開くことができます。入力エリアにMarkdownファイルをドロップすると、自動的に内容が読み込まれます。
+            </div>
+            <hr>
+            <h1 id="markdown-help">📖 Markdown 記法ヘルプ</h1>
+            <h2 id="headers">🔤 見出し</h2>
+            <div class="example">
+                <div class="example-label">書き方:</div>
+                <pre><code># 見出し1
+## 見出し2
+### 見出し3
+#### 見出し4</code></pre>
+            </div>
+            <h2 id="formatting">✍️ テキスト装飾</h2>
+            <div class="example">
+                <div class="example-label">書き方:</div>
+                <pre><code>**太字**
+*斜体*
+~~取り消し線~~
+\`インラインコード\`</code></pre>
+            </div>
+            <h2 id="html-tags">🎨 HTMLタグを使った装飾</h2>
+            <h3>フォントの色指定</h3>
+            <div class="example">
+                <div class="example-label">書き方:</div>
+                <pre><code>&lt;font color="red"&gt;赤い文字&lt;/font&gt;
+&lt;font color="#ff0000"&gt;赤い文字（16進数）&lt;/font&gt;
+&lt;font color="rgb(255, 0, 0)"&gt;赤い文字（RGB）&lt;/font&gt;</code></pre>
+            </div>
+
+            <h3>代表的な色の名前</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>色名</th>
+                        <th>表示例</th>
+                        <th>16進数コード</th>
+                    </tr>
+                </thead>
+        <tbody>
+            <tr>
+                <td>red</td>
+                <td style="color: red; font-weight: bold;">赤色のテキスト</td>
+                <td>#FF0000</td>
+            </tr>
+            <tr>
+                <td>blue</td>
+                <td style="color: blue; font-weight: bold;">青色のテキスト</td>
+                <td>#0000FF</td>
+            </tr>
+            <tr>
+                <td>green</td>
+                <td style="color: green; font-weight: bold;">緑色のテキスト</td>
+                <td>#008000</td>
+            </tr>
+            <tr>
+                <td>yellow</td>
+                <td style="color: yellow; background: #333; font-weight: bold;">黄色のテキスト</td>
+                <td>#FFFF00</td>
+            </tr>
+            <tr>
+                <td>orange</td>
+                <td style="color: orange; font-weight: bold;">オレンジ色のテキスト</td>
+                <td>#FFA500</td>
+            </tr>
+            <tr>
+                <td>purple</td>
+                <td style="color: purple; font-weight: bold;">紫色のテキスト</td>
+                <td>#800080</td>
+            </tr>
+            <tr>
+                <td>pink</td>
+                <td style="color: pink; font-weight: bold;">ピンク色のテキスト</td>
+                <td>#FFC0CB</td>
+            </tr>
+            <tr>
+                <td>brown</td>
+                <td style="color: brown; font-weight: bold;">茶色のテキスト</td>
+                <td>#A52A2A</td>
+            </tr>
+            <tr>
+                <td>gray</td>
+                <td style="color: gray; font-weight: bold;">灰色のテキスト</td>
+                <td>#808080</td>
+            </tr>
+            <tr>
+                <td>black</td>
+                <td style="color: black; font-weight: bold;">黒色のテキスト</td>
+                <td>#000000</td>
+            </tr>
+            <tr>
+                <td>white</td>
+                <td style="color: white; background: #333; font-weight: bold;">白色のテキスト</td>
+                <td>#FFFFFF</td>
+            </tr>
+            <tr>
+                <td>gold</td>
+                <td style="color: gold; font-weight: bold;">金色のテキスト</td>
+                <td>#FFD700</td>
+            </tr>
+            <tr>
+                <td>silver</td>
+                <td style="color: silver; font-weight: bold;">銀色のテキスト</td>
+                <td>#C0C0C0</td>
+            </tr>
+            <tr>
+                <td>navy</td>
+                <td style="color: navy; font-weight: bold;">紺色のテキスト</td>
+                <td>#000080</td>
+            </tr>
+            <tr>
+                <td>teal</td>
+                <td style="color: teal; font-weight: bold;">青緑色のテキスト</td>
+                <td>#008080</td>
+            </tr>
+            <tr>
+                <td>lime</td>
+                <td style="color: lime; font-weight: bold;">ライム色のテキスト</td>
+                <td>#00FF00</td>
+            </tr>
+            <tr>
+                <td>maroon</td>
+                <td style="color: maroon; font-weight: bold;">えび茶色のテキスト</td>
+                <td>#800000</td>
+            </tr>
+            <tr>
+                <td>olive</td>
+                <td style="color: olive; font-weight: bold;">オリーブ色のテキスト</td>
+                <td>#808000</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="tip">色名の他に、16進数コード（#FF0000）やRGB形式（rgb(255, 0, 0)）でも指定できます</div>
+
+            <h3>下線</h3>
+            <div class="example">
+                <div class="example-label">書き方:</div>
+                <pre><code>&lt;u&gt;下線付きテキスト&lt;/u&gt;</code></pre>
+            </div>
+
+            <h2 id="lists">📝 リスト</h2>
+            <h3>箇条書きリスト</h3>
+            <div class="example">
+                <div class="example-label">書き方:</div>
+                <pre><code>- 項目1
+- 項目2
+  - サブ項目2.1
+  - サブ項目2.2</code></pre>
+            </div>
+
+            <h3>番号付きリスト</h3>
+            <div class="example">
+                <div class="example-label">書き方:</div>
+                <pre><code>1. 最初の項目
+2. 次の項目
+3. 3番目の項目</code></pre>
+            </div>
+
+            <h2 id="links">🔗 リンク</h2>
+            <div class="example">
+                <div class="example-label">書き方:</div>
+                <pre><code>[リンクテキスト](https://example.com)
+[タイトル付きリンク](https://example.com "タイトル")</code></pre>
+            </div>
+
+            <h2 id="images">🖼️ 画像</h2>
+            <div class="example">
+                <div class="example-label">書き方:</div>
+                <pre><code>![代替テキスト](画像URL)
+![画像の説明](https://example.com/image.jpg "タイトル")</code></pre>
+            </div>
+
+            <h2 id="quotes">💬 引用</h2>
+            <div class="example">
+                <div class="example-label">書き方:</div>
+                <pre><code>&gt; これは引用文です
+&gt; 複数行にわたって
+&gt; 引用できます</code></pre>
+            </div>
+
+            <h2 id="code">💻 コードブロック</h2>
+            <div class="example">
+                <div class="example-label">書き方（バッククォート3つで囲む）:</div>
+                <pre><code>\`\`\`javascript
+function hello() {
+    console.log("Hello, World!");
+}
+\`\`\`</code></pre>
+            </div>
+
+            <h2 id="tables">📊 表（テーブル）</h2>
+            <div class="example">
+                <div class="example-label">書き方:</div>
+                <pre><b>| 左寄せ | 中央揃え | 右寄せ |
+|:---|:---:|---:|
+| Left | Center | Right |
+| 内容A | 内容B | 内容C |</b></pre>
+            </div>
+            <div class="tip">
+                列の区切りは | で、ヘッダーとデータの間は |---| で区切ります<br>
+                左寄せは |:---| ，中央揃えは |:--:| ，右寄せは |---:| で指定できます
+            </div>
+
+            <h2 id="hr">📏 水平線</h2>
+            <div class="example">
+                <div class="example-label">書き方（3つ以上の - または * または _）:</div>
+                <pre><code>---
+***
+___</code></pre>
+            </div>
+
+            <h2 id="tasks">☑️ タスクリスト</h2>
+            <div class="example">
+                <div class="example-label">書き方:</div>
+                <pre><code>- [ ] 未完了のタスク
+- [x] 完了したタスク
+- [ ] もう一つのタスク</code></pre>
+            </div>
+            <div class="tip">
+                プレビュー画面上のチェックボックスをクリックすると、<b>入力エリアのMarkdownテキスト（[ ] や [x]）も自動的に書き換わります。</b>
+            </div>
+
+<h2 id="math">🔢 数式（MathJax）</h2>
+            <p>LaTeX記法を使って、美しい数式を表示できます。</p>
+
+            <h3>1. 数式の囲み方</h3>
+            <div class="example">
+                <div class="example-label">インライン（文中）: <code>$ ... $</code></div>
+                <pre><code>文中に $E=mc^2$ を埋め込みます。</code></pre>
+                <div class="example-label">ブロック（独立行）: <code>$$ ... $$</code></div>
+                <pre><code>$$
+\\sum_{i=1}^{n} i = \\frac{n(n+1)}{2}
+$$</code></pre>
+            </div>
+
+            <h3>2. 基本的な記号・演算子</h3>
+            <table>
+                <thead>
+                    <tr><th>種類</th><th>書き方</th><th>表示例</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>上付き・下付き</td>
+                        <td>x^2, a_n</td>
+                        <td>$x^2$, $a_n$</td>
+                    </tr>
+                    <tr>
+                        <td>分数</td>
+                        <td>\\frac{a}{b}</td>
+                        <td>$\\frac{a}{b}$</td>
+                    </tr>
+                    <tr>
+                        <td>平方根</td>
+                        <td>\\sqrt{x}</td>
+                        <td>$\\sqrt{x}$</td>
+                    </tr>
+                    <tr>
+                        <td>ギリシャ文字</td>
+                        <td>\\alpha, \\beta, \\pi, \\theta</td>
+                        <td>$\\alpha, \\beta, \\pi, \\theta$</td>
+                    </tr>
+                    <tr>
+                        <td>演算子</td>
+                        <td>\\times, \\div, \\pm</td>
+                        <td>$\\times, \\div, \\pm$</td>
+                    </tr>
+                    <tr>
+                        <td>関係子</td>
+                        <td>\\leq, \\geq, \\neq, \\approx</td>
+                        <td>$\\leq, \\geq, \\neq, \\approx$</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>3. 総和・積分・極限</h3>
+            <div class="example">
+                <div class="example-label">書き方:</div>
+                <pre><code>$$
+\\sum_{k=1}^{n} k^2 \\quad \\int_{a}^{b} f(x) dx \\quad \\lim_{x \\to \\infty} \\frac{1}{x}
+$$</code></pre>
+                <div style="text-align:center; padding:10px;">
+                    $\\displaystyle \\sum_{k=1}^{n} k^2 \\quad \\int_{a}^{b} f(x) dx \\quad \\lim_{x \\to \\infty} \\frac{1}{x}$
+                </div>
+            </div>
+
+            <h3>4. 行列と括弧</h3>
+            <div class="example">
+                <div class="example-label">書き方:</div>
+                <pre><code>$$
+A = \\begin{pmatrix}
+a & b \\\\
+c & d
+\\end{pmatrix}
+$$</code></pre>
+                <div style="text-align:center; padding:10px;">
+                    $\\displaystyle A = \\begin{pmatrix} a & b \\ c & d \\end{pmatrix}$
+                </div>
+            </div>
+            
+            <div class="tip">
+                <code>\\displaystyle</code> を数式の先頭に付けると、インライン数式でも分数を大きく表示できます。<br>
+                行列の改行には <code>\\\\</code> (バックスラッシュ2つ) を使用してください。
+            </div>
+
+            <h2 id="mermaid">📈 Mermaid 図表</h2>
+            <p>Mermaid（マーメイド）記法は、テキストから図（フローチャート、シーケンス図、ガントチャートなど）を自動生成する仕組みです。MarkdownやHTMLに埋め込んで使えます。</p>
+
+            <h3>1. 基本構文（フローチャート）</h3>
+            <div class="example">
+                <div class="example-label">書き方:</div>
+                <pre><code>\`\`\`mermaid
+flowchart TD
+    A[開始] --> B{条件?}
+    B -->|はい| C[処理1]
+    B -->|いいえ| D[処理2]
+    C --> E[終了]
+    D --> E
+\`\`\`</code></pre>
+            </div>
+            <div style="text-align:center; margin-bottom:20px;">↓ 結果</div>
+            <div class="mermaid">
+flowchart TD
+    A[開始] --> B{条件?}
+    B -->|はい| C[処理1]
+    B -->|いいえ| D[処理2]
+    C --> E[終了]
+    D --> E
+            </div>
+
+            <h3>2. よく使うオプション</h3>
+            <h4>a. 方向指定</h4>
+            <table>
+                <thead><tr><th>記号</th><th>意味</th></tr></thead>
+                <tbody>
+                    <tr><td>TD</td><td>Top → Down（縦）</td></tr>
+                    <tr><td>LR</td><td>Left → Right（横）</td></tr>
+                    <tr><td>BT</td><td>Bottom → Top（下から上）</td></tr>
+                    <tr><td>RL</td><td>Right → Left（右から左）</td></tr>
+                </tbody>
+            </table>
+
+            <h4>b. ノードの形・矢印</h4>
+            <table>
+                <thead><tr><th>書き方</th><th>説明</th></tr></thead>
+                <tbody>
+                    <tr><td>A[テキスト]</td><td>角丸長方形</td></tr>
+                    <tr><td>B(テキスト)</td><td>丸括弧</td></tr>
+                    <tr><td>C{テキスト}</td><td>ひし形（条件分岐など）</td></tr>
+                    <tr><td>A --> B</td><td>通常の矢印</td></tr>
+                    <tr><td>A --- B</td><td>線だけ（矢印なし）</td></tr>
+                    <tr><td>A -- text --> B</td><td>ラベル付き矢印</td></tr>
+                    <tr><td>A -.-> B</td><td>点線矢印</td></tr>
+                    <tr><td>A ==> B</td><td>太い矢印</td></tr>
+                </tbody>
+            </table>
+
+            <h3>3. サブグラフ（グループ化）</h3>
+            <div class="example">
+                <pre><code>\`\`\`mermaid
+flowchart TD
+  subgraph group1
+      A --> B
+  end
+  subgraph group2
+      C --> D
+  end
+  group1 --> group2
+\`\`\`</code></pre>
+            </div>
+
+            <h3>4. シーケンス図</h3>
+            <div class="example">
+                <pre><code>\`\`\`mermaid
+sequenceDiagram
+    participant A as 医師
+    participant B as 看護師
+    A->>B: 診療依頼
+    B-->>A: 報告
+\`\`\`</code></pre>
+            </div>
+
+            <h3>5. ガントチャート</h3>
+            <div class="example">
+                <pre><code>\`\`\`mermaid
+gantt
+    dateFormat  YYYY-MM-DD
+    section 計画
+    準備        :a1, 2025-01-01, 10d
+    実施        :a2, after a1, 7d
+    評価        :a3, after a2, 5d
+\`\`\`</code></pre>
+            </div>
+
+            <h3>6. クラス図</h3>
+            <div class="example">
+                <pre><code>\`\`\`mermaid
+classDiagram
+    class Patient {
+        +name : string
+        +ID : int
+        +dialysis()
+    }
+\`\`\`</code></pre>
+            </div>
+
+            <h3>7. スタイル変更（色・枠）</h3>
+            <div class="example">
+                <div class="example-label">書き方:</div>
+                <pre><code>style A fill:#f9f,stroke:#333,stroke-width:2px</code></pre>
+                <p>ノードID（Aなど）を指定して色や枠線をカスタマイズできます。</p>
+            </div>
+
+            <h2 id="others">🎯 その他・エスケープ</h2>
+            <h3>改行</h3>
+            <div class="example">
+                <div class="example-label">2つの方法:</div>
+                <pre><code>1. 行末にスペース2つ  
+2. 空行を入れる
+
+別の段落</code></pre>
+            </div>
+
+            <h3>エスケープ</h3>
+            <div class="example">
+                <div class="example-label">特殊文字を表示する場合:</div>
+                <pre><code>\\* アスタリスクそのものを表示
+\\# ハッシュそのものを表示</code></pre>
+            </div>
+
+            <div class="tip" style="margin-top: 40px;">
+                このヘルプページは、Markdown Viewer Advanced に含まれる主な記法を説明しています。
+                より詳しい情報は <a href="https://www.markdownguide.org/" target="_blank">Markdown Guide</a> をご覧ください。
+            </div>
+        </main>
+    </div>
+</body>
+<hr>
+<p style="text-align: right;">
+  <b>Coded by Norio Hanafusa in 2026 — vibe coding with ChatGPT, Gemini, and Claude.</b>
+</p>
+</html>`;
+            const newWindow = window.open('', '_blank');
+            if (newWindow) {
+                newWindow.document.write(helpHtml);
+                newWindow.document.close();
+
+                // ヘルプウィンドウ内でもMermaidを描画するためにスクリプトを注入
+                const script = newWindow.document.createElement('script');
+                script.src = "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js";
+                script.onload = function () {
+                    newWindow.mermaid.initialize({ startOnLoad: true, theme: "default" });
+                };
+                newWindow.document.head.appendChild(script);
+
+            } else {
+                customAlert("ポップアップがブロックされました。");
+            }
+        }
+
+        /* ============================================================================
+           イベントリスナーの設定 (ドロップダウンUI対応)
+        ============================================================================ */
+
+        // 1. ドロップダウンの開閉制御
+        document.querySelectorAll('.dropdown-container button').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // 他のメニューを閉じる
+                document.querySelectorAll('.dropdown-menu').forEach(m => {
+                    if (m !== btn.nextElementSibling) m.classList.remove('show');
+                });
+                // 対象のメニューをトグル
+                btn.nextElementSibling.classList.toggle('show');
+            });
+        });
+
+        // 画面のどこかをクリックしたらメニューを閉じる
+        window.addEventListener('click', () => {
+            document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
+        });
+
+        
+
+        
+        // Markdownツール（プレビュー側ボタン）
+        document.querySelectorAll('.mdtool').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                handleMarkdownTool(btn.dataset.md);
+            });
+        });// 2. メニュー項目のアクション割り当て
+        document.querySelectorAll('[data-action]').forEach(item => {
+            item.addEventListener('click', (e) => {
+                const action = e.target.dataset.action;
+                switch (action) {
+                    case 'open': openMarkdownFile(); break;
+                    case 'save': saveMarkdown(); break;
+                    case 'save-as': saveAsMarkdown(); break;
+                    case 'print': handlePrint(); break; // print -> handlePrint に変更
+                    case 'clear': clearContent(); break;
+                    case 'punctuation': togglePunctuation(); break;
+                    case 'copy-all': copyAllContent(); break;
+                    case 'toggle-theme': toggleTheme(); break;
+                    case 'toggle-layout': toggleLayout(); break;
+                    case 'clear-all-highlights': clearAllHighlights(); break;
+                }
+            });
+        });
+
+        document.addEventListener("selectionchange", () => {
+            const selection = window.getSelection();
+            const selectedText = selection.toString();
+            
+            const previewEl = document.getElementById("preview");
+            if (selectedText && previewEl.contains(selection.anchorNode)) {
+                const range = selection.getRangeAt(0);
+                
+                // 直前8文字を取得
+                const preRange = range.cloneRange();
+                preRange.setStart(previewEl, 0);
+                preRange.setEnd(range.startContainer, range.startOffset);
+                const prefix = preRange.toString().slice(-8); 
+                
+                // 直後8文字を取得
+                const postRange = range.cloneRange();
+                postRange.setStart(range.endContainer, range.endOffset);
+                postRange.setEnd(previewEl, previewEl.childNodes.length);
+                const suffix = postRange.toString().slice(0, 8); 
+
+                previewSelectionData = {
+                    text: selectedText.trim(), // 選択テキスト自体の前後の空白は取ってもOK
+                    prefix: prefix,            // 重要：絶対 .trim() しない
+                    suffix: suffix             // 重要：絶対 .trim() しない
+                };
+            }
+        });
+        // --- 1. 強化された検索パターン作成関数 ---
+        function makeFuzzyPattern(prefix, text, suffix) {
+            const escape = (s) => s ? s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : "";
+            
+            // 【修正点】 \\d (数字) を noiseChars に追加
+            // これにより、リスト番号 (1. など) が文脈の間にあってもマッチするようになります
+            const noiseChars = '\\d\\#\\-\\+\\*\\_\\~\\`\\s\\n\\r\\|\\[\\]\\(\\)\\.\\:\\,\\u3000';
+            const noise = `([${noiseChars}|<\\/?mark>]*?)`; 
+            
+            const fuzzy = (s) => {
+                if (!s) return "";
+                return s.split('').map((c, i, arr) => {
+                    let esc = escape(c);
+                    
+                    if (/[.*+?^${}()|[\]\\]/.test(c)) {
+                        esc = '\\\\?' + esc; 
+                    }
+
+                    if (/\s/.test(c)) {
+                        esc = '[\\s\\n\\r\\u3000]*'; 
+                    }
+
+                    if (i === arr.length - 1) return esc;
+                    
+                    // 文字と文字の間には、数字を含めないノイズ設定にすることで
+                    // 単語内の検索精度（誤爆防止）を維持します
+                    const charNoiseChars = '\\#\\-\\+\\*\\_\\~\\`\\s\\n\\r\\|\\[\\]\\(\\)\\.\\:\\,\\u3000';
+                    return esc + `(?:[${charNoiseChars}|<\\/?mark>])*?`;
+                }).join('');
+            };
+            
+            // prefix, text, suffix の「間」のノイズには数字(\\d)を許可した noise を使用
+            return `(${fuzzy(prefix)})${noise}(${fuzzy(text)})${noise}(${fuzzy(suffix)})`;
+        }
+        // --- 2. 修正された handleEditAction 関数 ---
+        async function handleEditAction(action) {
+            const inputEl = document.getElementById("md-input");
+            const currentMarkdown = inputEl.value;
+
+            // A. プレビューからのハイライト消去 (アンマーカー)
+            if (action === 'unhighlight-preview') {
+                if (!previewSelectionData || !previewSelectionData.text) {
+                    customAlert("消去したい箇所をプレビュー上で選択してください。");
+                    return;
+                }
+
+                const { text, prefix, suffix } = previewSelectionData;
+                const pattern = makeFuzzyPattern(prefix, text, suffix);
+                const regex = new RegExp(pattern, 'm');
+                const match = currentMarkdown.match(regex);
+
+                if (match) {
+                    // マッチした範囲全体から、<mark> と </mark> だけを全て削除する
+                    const matchedFull = match[0];
+                    const unhighlighted = matchedFull.replace(/<\/?mark>/g, '');
+                    
+                    // ソースコード内の該当箇所を、タグを除去した文字列で置換
+                    inputEl.value = currentMarkdown.replace(matchedFull, unhighlighted);
+                    
+                    isDirty = true;
+                    updatePreview();
+                    previewSelectionData = null; // 選択データをリセット
+                } else {
+                    customAlert("該当するハイライト箇所を特定できませんでした。もう少し長めに選択してみてください。");
+                }
+                return;
+            }
+
+// B. プレビューからのハイライト追加
+if (action === 'highlight-preview') {
+    if (!previewSelectionData || !previewSelectionData.text) return;
+
+    const { text, prefix, suffix } = previewSelectionData;
+    const pattern = makeFuzzyPattern(prefix, text, suffix);
+    const regex = new RegExp(pattern, 'm');
+    const match = inputEl.value.match(regex);
+
+    if (match) {
+        // match[2] (前方のノイズ), [3] (テキスト本体), [4] (後方のノイズ)
+        // 【重要】マーク処理を match[3] のみに限定し、[2]と[4]はそのまま返します
+        let targetText = match[3];
+        
+        // 1. 既存のタグを完全に除去
+        targetText = targetText.replace(/<mark[^>]*>/g, '').replace(/<\/mark>/g, '');
+        
+        // 2. 分割すべき記法（構造記号 ＋ 装飾記号 ＋ 改行）
+        const delimRegex = /(\*\*|\*|___|__|_|~~|`|\||^#+\s+|^\s*[\-\+\*]\s+|^\s*\d+\.\s+|^>\s+|\r\n|\n|\r)/gm;
+
+        // 3. テキストを分解し、意味のあるテキスト部分のみをマーク
+        const segments = targetText.split(delimRegex);
+        const processed = segments.map(seg => {
+            if (!seg) return '';
+            
+            // 記号や改行、リスト番号（delimRegexに一致するもの）はそのまま返す
+            if (seg.match(delimRegex)) {
+                return seg;
+            } else {
+                // 空白のみ、または改行のみの場合はマークしない
+                if (seg.trim() === '') return seg;
+                return `<mark>${seg}</mark>`;
+            }
+        }).join('');
+
+        // 4. 置換の実行
+        // match[2] と match[4] は processed の外側に出すことで、マーク対象から除外します
+        inputEl.value = inputEl.value.replace(regex, (m, p1, p2, p3, p4, p5) => {
+            return p1 + p2 + processed + p4 + p5;
+        });
+        
+        isDirty = true;
+        updatePreview();
+        previewSelectionData = null;
+    } else {
+        console.warn("Match failed for pattern:", pattern);
+    }
+    return;
+}
+            // C. エディタ（左側）での直接ハイライト
+            if (action === 'highlight') {
+                const start = inputEl.selectionStart;
+                const end = inputEl.selectionEnd;
+                const selectedText = inputEl.value.substring(start, end);
+                if (selectedText) {
+                    inputEl.value = inputEl.value.substring(0, start) + `<mark>${selectedText}</mark>` + inputEl.value.substring(end);
+                    isDirty = true;
+                    updatePreview();
+                }
+            }
+        }
+
+        // --- 3. ショートカットキーの設定 (H = ハイライト, U = 消去) ---
+        window.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            // CtrlやAltが押されている時は通常のショートカットを優先
+            if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+            const inputEl = document.getElementById("md-input");
+
+            // Hキー: ハイライト
+            if (key === 'h') {
+                if (document.activeElement === inputEl && inputEl.selectionStart !== inputEl.selectionEnd) {
+                    e.preventDefault();
+                    handleEditAction('highlight');
+                } else if (previewSelectionData && previewSelectionData.text) {
+                    if (document.activeElement === inputEl && inputEl.selectionStart === inputEl.selectionEnd) return;
+                    e.preventDefault();
+                    handleEditAction('highlight-preview');
+                }
+            } 
+            // Uキー: 消去 (Unhighlight)
+            else if (key === 'u') {
+                if (previewSelectionData && previewSelectionData.text) {
+                    // エディタで文字を入力中の場合は「u」の入力を優先
+                    if (document.activeElement === inputEl && inputEl.selectionStart === inputEl.selectionEnd) return;
+                    
+                    e.preventDefault();
+                    handleEditAction('unhighlight-preview');
+                }
+            }
+        });
+
+        // 要約内容をクリップボードにコピーする関数
+        async function copySummary(btn) {
+            const summaryText = document.getElementById("summary-text").innerText;
+            
+            // 内容が空、または「思考中...」の場合はコピーしない
+            if (!summaryText || summaryText === "Geminiが思考中...") return;
+
+            try {
+                await navigator.clipboard.writeText(summaryText);
+                
+                // 成功時のフィードバック
+                const originalText = btn.innerHTML;
+                btn.innerHTML = "✅ 完了";
+                btn.style.backgroundColor = "#c6f6d5"; // 薄い緑色に
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.backgroundColor = "#edf2f7"; // 元に戻す
+                }, 2000);
+                
+            } catch (err) {
+                console.error('コピー失敗:', err);
+                customAlert("コピーに失敗しました。ブラウザの設定を確認してください。");
+            }
+        }
+
+        // ドロップダウンメニューのクリックイベント
+        document.getElementById("edit-dropdown").addEventListener("click", (e) => {
+            const action = e.target.closest(".dropdown-item")?.dataset.action;
+            if (action) {
+                handleEditAction(action);
+                document.getElementById("edit-dropdown").classList.remove("show");
+            }
+        });
+        
+        document.querySelectorAll('[data-format]').forEach(item => {
+            item.addEventListener('click', (e) => {
+                const fmt = e.target.dataset.format;
+                if (fmt === 'html') downloadHtml();
+                if (fmt === 'docx') downloadDocx();
+            });
+        });
+
+        document.querySelectorAll('[data-ai]').forEach(item => {
+            item.addEventListener('click', (e) => {
+                const ai = e.target.dataset.ai;
+                sendToAI(ai);
+            });
+        });
+
+        // 3. その他ボタン・入力イベント
+        const helpBtn = document.getElementById("help-button");
+        if (helpBtn) helpBtn.addEventListener("click", showHelp);
+
+        input.addEventListener("input", () => { 
+            isDirty = true; 
+            justCleared = false;
+            updatePreview(); 
+        });
+
+        const fontSizeSelect = document.getElementById("font-size-select");
+        fontSizeSelect.addEventListener("change", () => {
+            const val = Number(fontSizeSelect.value) / 100;
+            document.body.style.fontSize = (baseBodyFontSize * val) + "px";
+            input.style.fontSize = (baseTextareaFontSize * val) + "px";
+        });
+        
+        // Ctrl+Z でアンドゥ
+        document.addEventListener("keydown", (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+                // クリア直後のみカスタムアンドゥを実行
+                if (justCleared) {
+                    e.preventDefault();
+                    undo();
+                }
+                // それ以外は通常のブラウザ機能として動作
+            }
+        });
+
+        function clearAllHighlights() {
+            const inputEl = document.getElementById("md-input");
+            const originalText = inputEl.value;
+            
+            // <mark> と </mark> をすべて除去（グローバル置換）
+            const newText = originalText.replace(/<mark>/g, '').replace(/<\/mark>/g, '');
+            
+            if (originalText !== newText) {
+                // 現在の状態をアンドゥスタックに保存
+                undoStack.push({
+                    content: originalText,
+                    fileName: document.getElementById("current-file").textContent,
+                    fileHandle: currentFileHandle
+                });
+                
+                inputEl.value = newText;
+                isDirty = true;
+                justCleared = true; // アンドゥを有効にするフラグ
+                updatePreview();
+                customAlert("✅ すべてのハイライトを解除しました。");
+            } else {
+                customAlert("ハイライトされた箇所はありません。");
+            }
+        }
+
+        const contextMenu = document.getElementById('custom-context-menu');
+        const previewArea = document.getElementById('preview'); // プレビュー領域のみで動作させる
+
+        // 1. 右クリックイベントの監視
+        previewArea.addEventListener('contextmenu', (e) => {
+            const selection = window.getSelection().toString();
+            if (selection) {
+                e.preventDefault(); 
+                // pageX/Y ではなく clientX/Y を使用することで
+                // スクロール位置に関わらずマウスの場所に表示されます
+                showContextMenu(e.clientX, e.clientY);
+            }
+        });
+
+        // 2. メニューを表示する関数
+        function showContextMenu(x, y) {
+            const contextMenu = document.getElementById('custom-context-menu');
+            contextMenu.style.display = 'block';
+            
+            // 画面の右端や下端でメニューがはみ出さないための簡易調整
+            const menuWidth = 180;
+            const menuHeight = 120;
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+
+            let posX = x;
+            let posY = y;
+
+            // 右側にはみ出すなら左に寄せる
+            if (x + menuWidth > screenWidth) posX = x - menuWidth;
+            // 下側にはみ出すなら上に寄せる
+            if (y + menuHeight > screenHeight) posY = y - menuHeight;
+
+            contextMenu.style.left = `${posX}px`;
+            contextMenu.style.top = `${posY}px`;
+        }
+        // 3. メニューを隠す関数
+        function hideContextMenu() {
+            contextMenu.style.display = 'none';
+        }
+
+        // 4. 画面のどこかをクリックしたらメニューを閉じる
+        document.addEventListener('click', () => {
+            hideContextMenu();
+        });
+
+        // 5. handleEditAction 内で処理が終わったらメニューを閉じるように微調整
+        const originalHandleEditAction = handleEditAction;
+        handleEditAction = async function(action) {
+            await originalHandleEditAction(action);
+            hideContextMenu();
+        };
+        /* ============================================================================
+           ドラッグ＆ドロップ機能の追加
+        ============================================================================ */
+        const dropZone = document.getElementById("md-input");
+
+        // ファイルがドラッグされてきた時の視覚効果
+        dropZone.addEventListener("dragover", (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+            dropZone.style.borderColor = "var(--accent)"; // 枠線をアクセントカラーに
+            dropZone.style.boxShadow = "0 0 0 3px rgba(66, 153, 225, 0.3)"; // 強調表示
+        });
+
+        // ドラッグが外れた時に元に戻す
+        dropZone.addEventListener("dragleave", (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            dropZone.style.borderColor = "var(--border)";
+            dropZone.style.boxShadow = "0 2px 8px var(--panel-shadow)";
+        });
+
+        // ドロップされた時の処理
+        dropZone.addEventListener("drop", async (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            
+            // スタイルを元に戻す
+            dropZone.style.borderColor = "var(--border)";
+            dropZone.style.boxShadow = "0 2px 8px var(--panel-shadow)";
+
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+
+                // 編集中の内容がある場合の確認（既存のcustomConfirmを使用）
+                if (isDirty) {
+                    const proceed = await customConfirm("現在の内容を破棄して、ドロップされたファイルを開きますか？");
+                    if (!proceed) return;
+                }
+
+                // ファイル読み込み
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    input.value = event.target.result;
+                    
+                    // ファイル名表示を更新
+                    setCurrentFileLabel(file.name);
+                    
+                    // 注意: ドラッグ＆ドロップでは「上書き保存」用のハンドルは取得できないため、
+                    // 新規ファイル扱いとしてハンドルをリセットします
+                    currentFileHandle = null;
+                    
+                    isDirty = false;
+                    updatePreview();
+                };
+                
+                // テキストとして読み込む
+                reader.readAsText(file);
+            }
+        });
+
+        function setGeminiKey() {
+            const key = prompt("Google AI (Gemini) APIキーを入力してください:", geminiApiKey);
+            if (key) {
+                geminiApiKey = key;
+                customAlert("APIキーを記憶しました。");
+            }
+        }
+
+        function closeSummary() {
+            document.getElementById("summary-modal").style.display = "none";
+        }
+
+        async function summarizeContent() {
+            if (!geminiApiKey) {
+                customAlert("先にAPIキーを設定してください（🔑ボタン）。");
+                return;
+            }
+
+            const fullText = document.getElementById("md-input").value;
+            if (!fullText.trim()) return;
+
+            const hasMarks = /<mark[^>]*>.*?<\/mark>/is.test(fullText);
+            
+            let promptInstruction = "";
+            if (hasMarks) {
+                promptInstruction = "以下のテキストの中から、<mark>タグで囲まれた部分を抽出し、その重要なポイントを組み合わせて「箇条書き」で要約してください。";
+            } else {
+                promptInstruction = "以下のテキスト全体を読み、内容の要点を「箇条書き」で簡潔に要約してください。";
+            }
+
+            const finalPrompt = `${promptInstruction}\n\n--- テキスト ---\n${fullText}`;
+
+            const summaryTextEl = document.getElementById("summary-text");
+            summaryTextEl.innerText = "Geminiが思考中...";
+            document.getElementById("summary-modal").style.display = "flex";
+
+            try {
+                // --- 修正箇所: URLを v1beta から v1 に変更 ---
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${geminiApiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: finalPrompt }] }]
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.candidates && data.candidates[0].content.parts[0].text) {
+                    summaryTextEl.innerText = data.candidates[0].content.parts[0].text;
+                } else if (data.error) {
+                    // エラー詳細を表示するように強化
+                    throw new Error(`${data.error.status}: ${data.error.message}`);
+                } else {
+                    throw new Error("要約を取得できませんでした。内容を確認してください。");
+                }
+            } catch (error) {
+                console.error("Gemini API Error:", error);
+                summaryTextEl.innerText = "エラーが発生しました:\n" + error.message;
+            }
+        }
+
+
+
+        // 初期化
+        window.addEventListener("DOMContentLoaded", () => {
+            isDirty = false;
+            updatePreview();
+        });
+
+        window.addEventListener("beforeunload", (e) => {
+            if (isDirty) { e.preventDefault(); e.returnValue = ""; }
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: "default" });
+    </script>
+
+</body>
+
+</html>
