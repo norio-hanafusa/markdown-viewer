@@ -4,7 +4,7 @@
 
 ## デモ
 
-https://norio-hanafusa.github.io/markdown-viewer/
+https://norio-hanafusa.github.io/markdown-viewer/index.html
 
 ## 機能
 
