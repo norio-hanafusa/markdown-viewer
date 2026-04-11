@@ -2847,11 +2847,18 @@ sequenceDiagram
             <div class="example">
                 <pre><code>\`\`\`mermaid
 gantt
+    title プロジェクトスケジュール
     dateFormat  YYYY-MM-DD
-    section 計画
-    準備        :a1, 2025-01-01, 10d
-    実施        :a2, after a1, 7d
-    評価        :a3, after a2, 5d
+    tickInterval 1week
+    axisFormat %m/%d
+    section 設計
+    要件定義      :a1, 2026-04-01, 7d
+    基本設計      :a2, after a1, 5d
+    section 開発
+    バックエンド  :b1, after a2, 14d
+    フロントエンド :b2, after a2, 14d
+    section テスト
+    結合テスト    :c1, after b1, 7d
 \`\`\`</code></pre>
             </div>
 
