@@ -345,25 +345,30 @@
             margin-bottom: 0;
             flex-wrap: wrap;
         }
+
         /* ▼▼▼ 追加: Markdown側ツールバー ▼▼▼ */
-.md-toolbar {
+        .md-toolbar {
             display: flex;
             align-items: center;
             gap: 6px;
             flex-wrap: wrap;
             margin-left: auto;
         }
+
         .md-toolbar .button {
             padding: 6px 10px;
             font-size: 12px;
             border-radius: 8px;
             box-shadow: none;
         }
+
         .md-toolbar .button:hover {
             transform: none;
             box-shadow: none;
         }
-        /* ▲▲▲ 追加ここまで ▲▲▲ */        /* 既存のbuttonスタイル */
+
+        /* ▲▲▲ 追加ここまで ▲▲▲ */
+        /* 既存のbuttonスタイル */
         button.button {
             padding: 8px 12px;
             font-size: 13px;
@@ -590,8 +595,10 @@
 
             mark {
                 background-color: yellow !important;
-                -webkit-print-color-adjust: exact; /* Chrome, Edge, Safari用 */
-                print-color-adjust: exact;         /* 標準設定 */
+                -webkit-print-color-adjust: exact;
+                /* Chrome, Edge, Safari用 */
+                print-color-adjust: exact;
+                /* 標準設定 */
             }
 
             #preview {
@@ -639,7 +646,7 @@
             body:not(.vertical-layout) .input-header {
                 grid-column: 1 / 2;
                 grid-row: 2 / 3;
-            
+
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
@@ -705,6 +712,32 @@
             /* 背景はラッパーに任せる */
         }
 
+        /* diff ハイライト */
+        /* diff: 全行を同一ブロックとして扱う */
+        .diff-line {
+            display: block;
+            margin: 0 -16px;
+            padding: 0 16px;
+        }
+
+        .diff-add {
+            background-color: rgba(72, 187, 120, 0.25);
+            border-left: 3px solid #48bb78;
+        }
+
+        .diff-del {
+            background-color: rgba(245, 101, 101, 0.25);
+            border-left: 3px solid #f56565;
+        }
+
+        body.dark .diff-add {
+            background-color: rgba(72, 187, 120, 0.15);
+        }
+
+        body.dark .diff-del {
+            background-color: rgba(245, 101, 101, 0.15);
+        }
+
         /* ▼▼▼ 追加: ヘッダー固定用スタイル ▼▼▼ */
         #sticky-header {
             position: sticky;
@@ -726,17 +759,19 @@
         body.dark #sticky-header {
             background: rgba(26, 32, 44, 0.95);
         }
+
         /* ▼▼▼ 追加: タイトルと入力欄の間隔を強制的に詰める設定 ▼▼▼ */
 
         /* 1. 見出し周りの余白を完全にゼロにする */
-        .input-header, 
+        .input-header,
         .preview-header {
             margin-bottom: 0 !important;
-            padding-bottom: 5px !important; /* わずかな隙間だけ残す */
+            padding-bottom: 5px !important;
+            /* わずかな隙間だけ残す */
             min-height: 0 !important;
         }
 
-        .input-header h2, 
+        .input-header h2,
         .preview-header h2 {
             margin: 0 !important;
             padding: 0 !important;
@@ -760,27 +795,32 @@
             }
         }
 
-/* ▼▼▼ 追加：余白完全削除のための強力な設定 ▼▼▼ */
+        /* ▼▼▼ 追加：余白完全削除のための強力な設定 ▼▼▼ */
 
         /* 1. ボタンエリアの余白（元のstyle="margin: 16px 0"）を強制的に削除 */
         #sticky-header .button-area {
-            margin-bottom: 0 !important; /* 下の余白を0に */
-            padding-bottom: 8px !important; /* 最低限の隙間だけ確保 */
+            margin-bottom: 0 !important;
+            /* 下の余白を0に */
+            padding-bottom: 8px !important;
+            /* 最低限の隙間だけ確保 */
         }
 
         /* 2. 固定ヘッダー自体の下側余白を削除 */
         #sticky-header {
             padding-bottom: 0 !important;
             margin-bottom: 0 !important;
-            border-bottom: 1px solid var(--border); /* 区切り線を表示 */
+            border-bottom: 1px solid var(--border);
+            /* 区切り線を表示 */
         }
 
         /* 3. 「Markdown入力」見出しの上側を詰める */
-        .input-header, 
+        .input-header,
         .preview-header {
             margin-top: 0 !important;
-            padding-top: 8px !important; /* ヘッダー直下に少しだけ隙間 */
-            align-self: start !important; /* 上に寄せる */
+            padding-top: 8px !important;
+            /* ヘッダー直下に少しだけ隙間 */
+            align-self: start !important;
+            /* 上に寄せる */
         }
 
         /* 4. グリッドレイアウトの行間を完全に0にする */
@@ -791,10 +831,11 @@
                 grid-template-rows: auto min-content 1fr !important;
             }
         }
-                /* ============================================================================
+
+        /* ============================================================================
            TOC (目次) 専用スタイル
         ============================================================================ */
-        
+
         /* TOC項目のカスタムスタイル */
         .toc-item {
             white-space: nowrap;
@@ -824,7 +865,7 @@
         }
 
         /* 子要素の表示/非表示 */
-        .toc-item.has-children.collapsed + .toc-children {
+        .toc-item.has-children.collapsed+.toc-children {
             display: none;
         }
 
@@ -862,6 +903,7 @@
         #preview {
             scroll-behavior: smooth;
         }
+
         /* プレビュー内の見出しにスクロールオフセットを設定 */
         #preview h1,
         #preview h2,
@@ -869,21 +911,25 @@
         #preview h4,
         #preview h5,
         #preview h6 {
-            scroll-margin-top: 150px; /* sticky-headerの高さ + 余裕 */
+            scroll-margin-top: 150px;
+            /* sticky-headerの高さ + 余裕 */
         }
 
         /* マーカー（ハイライト）のスタイル */
         mark {
-            background-color: #ffeb3b; /* 黄色のラインマーカー風 */
+            background-color: #ffeb3b;
+            /* 黄色のラインマーカー風 */
             color: inherit;
             padding: 0 2px;
             border-radius: 2px;
         }
+
         /* ダークモード時の色調整 */
         body.dark mark {
             background-color: #f59e0b;
             color: #000;
         }
+
         .context-menu {
             position: fixed;
             z-index: 10000;
@@ -915,8 +961,10 @@
 
         .custom-modal {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: rgba(0, 0, 0, 0.6);
             display: flex;
             justify-content: center;
@@ -930,7 +978,7 @@
             border-radius: 12px;
             width: 90%;
             max-width: 700px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
     </style>
 </head>
@@ -944,118 +992,118 @@
     </div>
     <div id="sticky-header">
         <div class="info-container">
-        <div id="file-info">
-            <label>📄 ファイル:</label>
-            <span id="current-file">(新規)</span>
-        </div>
+            <div id="file-info">
+                <label>📄 ファイル:</label>
+                <span id="current-file">(新規)</span>
+            </div>
 
-        <div id="stats-info">
-            <div class="stat-row">
-                <span class="stat-label">📊 文字数:</span>
-                <span class="stat-value" id="char-count">0</span>
+            <div id="stats-info">
+                <div class="stat-row">
+                    <span class="stat-label">📊 文字数:</span>
+                    <span class="stat-value" id="char-count">0</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">⚖️ 文字数(半角0.5):</span>
+                    <span class="stat-value" id="char-count-weighted">0</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">🔤 推定トークン数:</span>
+                    <span class="stat-value" id="token-count">0</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">📝 単語数:</span>
+                    <span class="stat-value" id="word-count">0</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">📄 行数:</span>
+                    <span class="stat-value" id="line-count">0</span>
+                </div>
             </div>
-            <div class="stat-row">
-                <span class="stat-label">⚖️ 文字数(半角0.5):</span>
-                <span class="stat-value" id="char-count-weighted">0</span>
-            </div>
-            <div class="stat-row">
-                <span class="stat-label">🔤 推定トークン数:</span>
-                <span class="stat-value" id="token-count">0</span>
-            </div>
-            <div class="stat-row">
-                <span class="stat-label">📝 単語数:</span>
-                <span class="stat-value" id="word-count">0</span>
-            </div>
-            <div class="stat-row">
-                <span class="stat-label">📄 行数:</span>
-                <span class="stat-value" id="line-count">0</span>
-            </div>
-        </div>
         </div>
 
         <div class="button-area" style="margin: 16px 0;">
-        <div class="button-section">
-            <div class="dropdown-container">
-                <button class="button" id="file-dropdown-button">📁 ファイル ▼</button>
-                <div class="dropdown-menu" id="file-dropdown">
-                    <div class="dropdown-item" data-action="open">📂 開く</div>
-                    <div class="dropdown-item" data-action="save">💾 保存</div>
-                    <div class="dropdown-item" data-action="save-as">💾 名前を付けて保存</div>
-                    <div class="dropdown-item" data-action="print">🖨️ 印刷</div>
+            <div class="button-section">
+                <div class="dropdown-container">
+                    <button class="button" id="file-dropdown-button">📁 ファイル ▼</button>
+                    <div class="dropdown-menu" id="file-dropdown">
+                        <div class="dropdown-item" data-action="open">📂 開く</div>
+                        <div class="dropdown-item" data-action="save">💾 保存</div>
+                        <div class="dropdown-item" data-action="save-as">💾 名前を付けて保存</div>
+                        <div class="dropdown-item" data-action="print">🖨️ 印刷</div>
+                    </div>
+                </div>
+
+                <div class="dropdown-container">
+                    <button class="button" id="edit-dropdown-button">✏️ 編集 ▼</button>
+                    <div class="dropdown-menu" id="edit-dropdown">
+                        <div class="dropdown-item" data-action="clear">🗑️ クリア</div>
+                        <div class="dropdown-item" data-action="punctuation">🔄 句読点の入れ替え</div>
+                        <div class="dropdown-item" data-action="copy-all">📋 全コピー</div>
+                        <div class="dropdown-item" data-action="highlight-preview">🖍️ ハイライト</div>
+                        <div class="dropdown-item" data-action="unhighlight-preview">🧹 ハイライトを消去</div>
+                        <div class="dropdown-item" data-action="clear-all-highlights">✨ すべてのハイライトを解除</div>
+                    </div>
+                </div>
+
+                <div class="dropdown-container">
+                    <button class="button" id="view-dropdown-button">👁️ 表示 ▼</button>
+                    <div class="dropdown-menu" id="view-dropdown">
+                        <div class="dropdown-item" data-action="toggle-theme">🌙 ダークモード</div>
+                        <div class="dropdown-item" data-action="toggle-layout">📱 縦置き</div>
+                    </div>
                 </div>
             </div>
 
-            <div class="dropdown-container">
-                <button class="button" id="edit-dropdown-button">✏️ 編集 ▼</button>
-                <div class="dropdown-menu" id="edit-dropdown">
-                    <div class="dropdown-item" data-action="clear">🗑️ クリア</div>
-                    <div class="dropdown-item" data-action="punctuation">🔄 句読点の入れ替え</div>
-                    <div class="dropdown-item" data-action="copy-all">📋 全コピー</div>
-                    <div class="dropdown-item" data-action="highlight-preview">🖍️ ハイライト</div>
-                    <div class="dropdown-item" data-action="unhighlight-preview">🧹 ハイライトを消去</div>
-                    <div class="dropdown-item" data-action="clear-all-highlights">✨ すべてのハイライトを解除</div>
+            <div class="button-divider"></div>
+
+            <div class="button-section">
+                <div class="dropdown-container">
+                    <button class="button" id="export-dropdown-button">📤 エクスポート ▼</button>
+                    <div class="dropdown-menu" id="export-dropdown">
+                        <div class="dropdown-item" data-format="html">HTML形式</div>
+                        <div class="dropdown-item" data-format="docx">DOCX形式</div>
+                    </div>
+                </div>
+
+                <div class="dropdown-container">
+                    <button class="button" id="ai-dropdown-button">🤖 AI統合 ▼</button>
+                    <div class="dropdown-menu" id="ai-dropdown">
+                        <div class="dropdown-item" onclick="setGeminiKey()">🔑 APIキー設定</div>
+                        <div class="dropdown-item" onclick="summarizeContent()">📝 AI要約を実行</div>
+
+                        <hr style="margin: 4px 0; border: 0; border-top: 1px solid #eee;">
+
+                        <div class="dropdown-item" data-ai="openai">OpenAI ChatGPT</div>
+                        <div class="dropdown-item" data-ai="claude">Anthropic Claude</div>
+                        <div class="dropdown-item" data-ai="gemini">Google Gemini</div>
+                    </div>
                 </div>
             </div>
 
-            <div class="dropdown-container">
-                <button class="button" id="view-dropdown-button">👁️ 表示 ▼</button>
-                <div class="dropdown-menu" id="view-dropdown">
-                    <div class="dropdown-item" data-action="toggle-theme">🌙 ダークモード</div>
-                    <div class="dropdown-item" data-action="toggle-layout">📱 縦置き</div>
-                </div>
-            </div>
-        </div>
+            <div class="button-divider"></div>
 
-        <div class="button-divider"></div>
-
-        <div class="button-section">
-            <div class="dropdown-container">
-                <button class="button" id="export-dropdown-button">📤 エクスポート ▼</button>
-                <div class="dropdown-menu" id="export-dropdown">
-                    <div class="dropdown-item" data-format="html">HTML形式</div>
-                    <div class="dropdown-item" data-format="docx">DOCX形式</div>
-                </div>
+            <div class="button-section">
+                <label for="font-size-select" style="font-size: 13px; font-weight: 500; color: var(--fg);">表示倍率:</label>
+                <select id="font-size-select">
+                    <option value="80">80%</option>
+                    <option value="90">90%</option>
+                    <option value="100" selected>100%</option>
+                    <option value="110">110%</option>
+                    <option value="120">120%</option>
+                </select>
             </div>
 
-            <div class="dropdown-container">
-                <button class="button" id="ai-dropdown-button">🤖 AI統合 ▼</button>
-                <div class="dropdown-menu" id="ai-dropdown">
-                    <div class="dropdown-item" onclick="setGeminiKey()">🔑 APIキー設定</div>
-                    <div class="dropdown-item" onclick="summarizeContent()">📝 AI要約を実行</div>
-                    
-                    <hr style="margin: 4px 0; border: 0; border-top: 1px solid #eee;">
-                    
-                    <div class="dropdown-item" data-ai="openai">OpenAI ChatGPT</div>
-                    <div class="dropdown-item" data-ai="claude">Anthropic Claude</div>
-                    <div class="dropdown-item" data-ai="gemini">Google Gemini</div>
+            <div class="button-divider"></div>
+
+            <div class="button-section">
+                <button class="button button-secondary" id="help-button">❓ ヘルプ</button>
+                <div class="dropdown-container">
+                    <button class="button button-secondary" id="toc-dropdown-button">📑 目次 ▼</button>
+                    <div class="dropdown-menu" id="toc-dropdown">
+                        <div class="dropdown-item" style="color: var(--secondary); font-style: italic;">見出しがありません</div>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <div class="button-divider"></div>
-
-        <div class="button-section">
-            <label for="font-size-select" style="font-size: 13px; font-weight: 500; color: var(--fg);">表示倍率:</label>
-            <select id="font-size-select">
-                <option value="80">80%</option>
-                <option value="90">90%</option>
-                <option value="100" selected>100%</option>
-                <option value="110">110%</option>
-                <option value="120">120%</option>
-            </select>
-        </div>
-
-        <div class="button-divider"></div>
-
-        <div class="button-section">
-            <button class="button button-secondary" id="help-button">❓ ヘルプ</button>
-            <div class="dropdown-container">
-                <button class="button button-secondary" id="toc-dropdown-button">📑 目次 ▼</button>
-                <div class="dropdown-menu" id="toc-dropdown">
-                    <div class="dropdown-item" style="color: var(--secondary); font-style: italic;">見出しがありません</div>
-                </div>
-            </div>
-        </div>
         </div>
     </div>
 
@@ -1070,7 +1118,8 @@
             <button class="button button-secondary mdtool" type="button" onclick="toggleBold()"><b>B</b></button>
             <button class="button button-secondary mdtool" type="button" onclick="toggleItalic()"><i>I</i></button>
             <button class="button button-secondary mdtool" type="button" onclick="toggleInlineCode()">`</button>
-            <button class="button button-secondary mdtool" type="button" data-md="codeblock" title="コードブロック (``` を2行)">```</button>
+            <button class="button button-secondary mdtool" type="button" data-md="codeblock"
+                title="コードブロック (``` を2行)">```</button>
             <div class="button-divider" style="height: 18px;"></div>
             <button class="button button-secondary mdtool" type="button" onclick="toggleUnorderedList()">•</button>
             <button class="button button-secondary mdtool" type="button" onclick="toggleOrderedList()">1.</button>
@@ -1078,11 +1127,11 @@
             <button class="button button-secondary mdtool" type="button" data-md="table2x2" title="2×2表を挿入">表</button>
         </div>
 
-        </div>
+    </div>
 
     <textarea id="md-input" placeholder="ここに Markdown を入力してください..."></textarea>
 
-    
+
     <div class="preview-header">
         <h2>👁️ プレビュー</h2>
     </div>
@@ -1102,11 +1151,15 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <h3 style="margin: 0;">✨ AI要約結果 (箇条書き)</h3>
                 <div style="display: flex; gap: 8px;">
-                    <button id="copy-summary-btn" onclick="copySummary(this)" style="padding: 5px 12px; background: #edf2f7; border: 1px solid #cbd5e0; border-radius: 4px; cursor: pointer;">📋 コピー</button>
+                    <button id="copy-summary-btn" onclick="copySummary(this)"
+                        style="padding: 5px 12px; background: #edf2f7; border: 1px solid #cbd5e0; border-radius: 4px; cursor: pointer;">📋
+                        コピー</button>
                     <button onclick="closeSummary()" style="padding: 5px 10px;">✕</button>
                 </div>
             </div>
-            <div id="summary-text" style="white-space: pre-wrap; text-align: left; max-height: 400px; overflow-y: auto; border: 1px solid #eee; padding: 15px; border-radius: 8px; background: #fafafa; font-family: inherit;"></div>
+            <div id="summary-text"
+                style="white-space: pre-wrap; text-align: left; max-height: 400px; overflow-y: auto; border: 1px solid #eee; padding: 15px; border-radius: 8px; background: #fafafa; font-family: inherit;">
+            </div>
             <div style="margin-top: 15px;">
                 <button onclick="closeSummary()" style="padding: 8px 20px;">閉じる</button>
             </div>
@@ -1164,11 +1217,36 @@
             const displayLang = (language || 'text').toUpperCase();
             const validLanguage = (window.hljs && language && hljs.getLanguage(language)) ? language : 'plaintext';
 
+            // ★ escapeAttr は外側に定義
+            function escapeAttr(text) {
+                return text
+                    .replace(/&/g, "&amp;")
+                    .replace(/"/g, "&quot;");
+            }
+
+            // ★ diff行を処理する関数
+            function renderDiffLines(rawCode, highlightedHtml) {
+                const rawLines = rawCode.split('\n');
+                const hlLines = highlightedHtml.split('\n');
+
+                return rawLines.map((rawLine, i) => {
+                    const hlLine = hlLines[i] ?? '';
+                    if (rawLine.startsWith('+')) {
+                        return `<span class="diff-add diff-line">${hlLine}</span>`;
+                    } else if (rawLine.startsWith('-')) {
+                        return `<span class="diff-del diff-line">${hlLine}</span>`;
+                    } else {
+                        return `<span class="diff-line">${hlLine}</span>`;
+                    }
+                }).join('');
+            }
+
             let codeContent = '';
             if (window.hljs) {
                 try {
                     const highlighted = hljs.highlight(code, { language: validLanguage }).value;
-                    codeContent = `<code class="hljs language-${validLanguage}">${highlighted}</code>`;
+                    const diffApplied = renderDiffLines(code, highlighted);
+                    codeContent = `<code class="hljs language-${validLanguage}">${diffApplied}</code>`;
                 } catch (e) {
                     codeContent = `<code class="language-${validLanguage}">${escapeHtml(code)}</code>`;
                 }
@@ -1177,7 +1255,7 @@
             }
 
             return `
-            <div class="code-block-wrapper">
+            <div class="code-block-wrapper" data-raw="${escapeAttr(code)}">
                 <div class="code-header">
                     <span class="code-lang">${language || 'Text'}</span>
                     <button class="copy-code-btn" onclick="copyCodeBlock(this)" title="コピー">
@@ -1188,19 +1266,22 @@
             </div>
             `;
         };
-
         window.copyCodeBlock = async function (btn) {
             const wrapper = btn.closest('.code-block-wrapper');
-            const codeElement = wrapper.querySelector('code');
-            if (!codeElement) return;
-            const textToCopy = codeElement.innerText;
+            const raw = wrapper.dataset.raw;
+            if (raw === undefined) return;
+
+            const textToCopy = raw
+                .split('\n')
+                .filter(line => !line.startsWith('-'))
+                .map(line => line.startsWith('+') ? line.slice(1) : line)  // + を除去
+                .join('\n');
+
             try {
                 await navigator.clipboard.writeText(textToCopy);
                 const originalContent = btn.innerHTML;
                 btn.innerHTML = '✅';
-                setTimeout(() => {
-                    btn.innerHTML = originalContent;
-                }, 2000);
+                setTimeout(() => { btn.innerHTML = originalContent; }, 2000);
             } catch (err) {
                 console.error('Copy failed:', err);
                 customAlert('コピーに失敗しました');
@@ -1259,7 +1340,7 @@
 
             // プレビュー内のすべての見出しを取得
             const headings = preview.querySelectorAll('h1, h2, h3, h4');
-            
+
             // TOCが空の場合
             if (headings.length === 0) {
                 tocDropdown.innerHTML = '<div class="dropdown-item" style="color: var(--secondary); font-style: italic;">見出しがありません</div>';
@@ -1268,7 +1349,7 @@
 
             // 階層構造を構築
             const tocTree = buildTOCTree(headings);
-            
+
             // TOCをレンダリング
             tocDropdown.innerHTML = '';
             renderTOCTree(tocTree, tocDropdown, 0);
@@ -1278,13 +1359,13 @@
         function buildTOCTree(headings) {
             const tree = [];
             const stack = [{ level: 0, children: tree }];
-            
+
             headings.forEach((heading, index) => {
                 // 見出しにIDを付与
                 if (!heading.id) {
                     heading.id = `heading-${index}`;
                 }
-                
+
                 const level = parseInt(heading.tagName.substring(1));
                 const node = {
                     heading: heading,
@@ -1293,17 +1374,17 @@
                     id: heading.id,
                     text: heading.textContent.trim()
                 };
-                
+
                 // 適切な親を見つける
                 while (stack.length > 1 && stack[stack.length - 1].level >= level) {
                     stack.pop();
                 }
-                
+
                 // 現在のノードを追加
                 stack[stack.length - 1].children.push(node);
                 stack.push(node);
             });
-            
+
             return tree;
         }
 
@@ -1317,11 +1398,11 @@
                     item.classList.add('has-children');
                     item.classList.add('collapsed'); // デフォルトで折りたたむ
                 }
-                
+
                 // インデント
                 const indent = depth * 16;
                 item.style.paddingLeft = `${16 + indent}px`;
-                
+
                 // 折りたたみアイコン（子要素がある場合）
                 if (node.children.length > 0) {
                     const collapseIcon = document.createElement('span');
@@ -1338,23 +1419,23 @@
                     const spacer = document.createElement('span');
                     spacer.style.width = '20px';
                 }
-                
+
                 // レベルに応じたアイコン
                 const icons = { 1: '📌', 2: '▪️', 3: '▫️', 4: '•' };
                 const icon = icons[node.level] || '•';
-                
+
                 // テキスト（最大50文字）
                 let headingText = node.text;
                 if (headingText.length > 50) {
                     headingText = headingText.substring(0, 50) + '...';
                 }
-                
+
                 const textNode = document.createTextNode(`${icon} ${headingText}`);
                 item.appendChild(textNode);
-                
+
                 // フォントサイズ調整
                 item.style.fontSize = `${14 - depth * 0.5}px`;
-                
+
                 // クリックイベント：該当見出しにスクロール
                 item.addEventListener('click', (e) => {
                     if (e.target === item || e.target === textNode) {
@@ -1362,9 +1443,9 @@
                         document.getElementById('toc-dropdown').classList.remove('show');
                     }
                 });
-                
+
                 container.appendChild(item);
-                
+
                 // 子要素がある場合は再帰的にレンダリング
                 if (node.children.length > 0) {
                     const childContainer = document.createElement('div');
@@ -1406,126 +1487,126 @@
         }
 
         function toggleBold() {
-        toggleWrap('**', '**');
+            toggleWrap('**', '**');
         }
 
         function toggleItalic() {
-        toggleWrap('*', '*');
+            toggleWrap('*', '*');
         }
 
         function toggleInlineCode() {
-        toggleWrap('`', '`');
+            toggleWrap('`', '`');
         }
 
         function toggleWrap(prefix, suffix) {
-        const el = input;
-        const start = el.selectionStart;
-        const end   = el.selectionEnd;
-        const value = el.value;
+            const el = input;
+            const start = el.selectionStart;
+            const end = el.selectionEnd;
+            const value = el.value;
 
-        if (start === end) return;
+            if (start === end) return;
 
-        const before = value.slice(start - prefix.length, start);
-        const after  = value.slice(end, end + suffix.length);
+            const before = value.slice(start - prefix.length, start);
+            const after = value.slice(end, end + suffix.length);
 
-        if (before === prefix && after === suffix) {
-            // 解除
-            el.value =
-            value.slice(0, start - prefix.length) +
-            value.slice(start, end) +
-            value.slice(end + suffix.length);
+            if (before === prefix && after === suffix) {
+                // 解除
+                el.value =
+                    value.slice(0, start - prefix.length) +
+                    value.slice(start, end) +
+                    value.slice(end + suffix.length);
 
-            el.selectionStart = start - prefix.length;
-            el.selectionEnd   = end - prefix.length;
-        } else {
-            // 付与
-            el.value =
-            value.slice(0, start) +
-            prefix +
-            value.slice(start, end) +
-            suffix +
-            value.slice(end);
+                el.selectionStart = start - prefix.length;
+                el.selectionEnd = end - prefix.length;
+            } else {
+                // 付与
+                el.value =
+                    value.slice(0, start) +
+                    prefix +
+                    value.slice(start, end) +
+                    suffix +
+                    value.slice(end);
 
-            el.selectionStart = start + prefix.length;
-            el.selectionEnd   = end + prefix.length;
-        }
+                el.selectionStart = start + prefix.length;
+                el.selectionEnd = end + prefix.length;
+            }
 
-        isDirty = true;
-        updatePreview();
+            isDirty = true;
+            updatePreview();
         }
 
         function toggleHeading(level) {
-        const el = input;
-        const pos = el.selectionStart;
-        const value = el.value;
+            const el = input;
+            const pos = el.selectionStart;
+            const value = el.value;
 
-        const lineStart = value.lastIndexOf('\n', pos - 1) + 1;
-        const lineEnd = value.indexOf('\n', pos);
-        const end = lineEnd === -1 ? value.length : lineEnd;
+            const lineStart = value.lastIndexOf('\n', pos - 1) + 1;
+            const lineEnd = value.indexOf('\n', pos);
+            const end = lineEnd === -1 ? value.length : lineEnd;
 
-        const line = value.slice(lineStart, end);
-        const mark = '#'.repeat(level) + ' ';
+            const line = value.slice(lineStart, end);
+            const mark = '#'.repeat(level) + ' ';
 
-        let newLine;
-        const m = line.match(/^(#{1,6})\s+/);
+            let newLine;
+            const m = line.match(/^(#{1,6})\s+/);
 
-        if (m && m[1].length === level) {
-            // 解除
-            newLine = line.replace(/^#{1,6}\s+/, '');
-        } else if (m) {
-            // レベル変更
-            newLine = line.replace(/^#{1,6}\s+/, mark);
-        } else {
-            // 付与
-            newLine = mark + line;
-        }
+            if (m && m[1].length === level) {
+                // 解除
+                newLine = line.replace(/^#{1,6}\s+/, '');
+            } else if (m) {
+                // レベル変更
+                newLine = line.replace(/^#{1,6}\s+/, mark);
+            } else {
+                // 付与
+                newLine = mark + line;
+            }
 
-        el.value = value.slice(0, lineStart) + newLine + value.slice(end);
-        el.selectionStart = el.selectionEnd = lineStart + newLine.length;
+            el.value = value.slice(0, lineStart) + newLine + value.slice(end);
+            el.selectionStart = el.selectionEnd = lineStart + newLine.length;
 
-        isDirty = true;
-        updatePreview();
+            isDirty = true;
+            updatePreview();
         }
 
         function toggleUnorderedList() {
-        toggleLinePrefix(/^[-*+]\s+/, '- ');
+            toggleLinePrefix(/^[-*+]\s+/, '- ');
         }
 
         function toggleOrderedList() {
-        toggleLinePrefix(/^\d+\.\s+/, '1. ');
+            toggleLinePrefix(/^\d+\.\s+/, '1. ');
         }
 
         function toggleLinePrefix(regex, prefix) {
-        const el = input;
-        const start = el.selectionStart;
-        const end   = el.selectionEnd;
-        const value = el.value;
+            const el = input;
+            const start = el.selectionStart;
+            const end = el.selectionEnd;
+            const value = el.value;
 
-        const blockStart = value.lastIndexOf('\n', start - 1) + 1;
-        const blockEnd = end === start
-            ? value.indexOf('\n', start) === -1 ? value.length : value.indexOf('\n', start)
-            : end;
+            const blockStart = value.lastIndexOf('\n', start - 1) + 1;
+            const blockEnd = end === start
+                ? value.indexOf('\n', start) === -1 ? value.length : value.indexOf('\n', start)
+                : end;
 
-        const block = value.slice(blockStart, blockEnd);
-        const lines = block.split('\n');
+            const block = value.slice(blockStart, blockEnd);
+            const lines = block.split('\n');
 
-        const toggled = lines.map(line => {
-            if (!line.trim()) return line;
-            return regex.test(line)
-            ? line.replace(regex, '')
-            : prefix + line;
-        }).join('\n');
+            const toggled = lines.map(line => {
+                if (!line.trim()) return line;
+                return regex.test(line)
+                    ? line.replace(regex, '')
+                    : prefix + line;
+            }).join('\n');
 
-        el.value =
-            value.slice(0, blockStart) +
-            toggled +
-            value.slice(blockEnd);
+            el.value =
+                value.slice(0, blockStart) +
+                toggled +
+                value.slice(blockEnd);
 
-        el.selectionStart = blockStart;
-        el.selectionEnd = blockStart + toggled.length;
+            el.selectionStart = blockStart;
+            el.selectionEnd = blockStart + toggled.length;
 
-        isDirty = true;
-        updatePreview();
+            isDirty = true;
+            updatePreview();
         }
 
 
@@ -1645,7 +1726,7 @@
             document.getElementById("char-count-weighted").textContent = weightedCount.toString();
         }
 
-        
+
         /* ============================================================================
            Markdownツール（プレビュー側ボタン）: 選択範囲に対する簡易編集
         ============================================================================ */
@@ -1982,7 +2063,7 @@
                     fileHandle: currentFileHandle
                 };
                 undoStack.push(previousState);
-                
+
                 // クリア実行
                 input.value = "";
                 isDirty = false;                    // ★ true → false に変更
@@ -2011,7 +2092,7 @@
                 customAlert("元に戻せる操作がありません");
                 return;
             }
-            
+
             const previousState = undoStack.pop();
             input.value = previousState.content;
             currentFileHandle = previousState.fileHandle;
@@ -2862,9 +2943,9 @@ classDiagram
             document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
         });
 
-        
 
-        
+
+
         // Markdownツール（プレビュー側ボタン）
         document.querySelectorAll('.mdtool').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -2893,22 +2974,22 @@ classDiagram
         document.addEventListener("selectionchange", () => {
             const selection = window.getSelection();
             const selectedText = selection.toString();
-            
+
             const previewEl = document.getElementById("preview");
             if (selectedText && previewEl.contains(selection.anchorNode)) {
                 const range = selection.getRangeAt(0);
-                
+
                 // 直前8文字を取得
                 const preRange = range.cloneRange();
                 preRange.setStart(previewEl, 0);
                 preRange.setEnd(range.startContainer, range.startOffset);
-                const prefix = preRange.toString().slice(-8); 
-                
+                const prefix = preRange.toString().slice(-8);
+
                 // 直後8文字を取得
                 const postRange = range.cloneRange();
                 postRange.setStart(range.endContainer, range.endOffset);
                 postRange.setEnd(previewEl, previewEl.childNodes.length);
-                const suffix = postRange.toString().slice(0, 8); 
+                const suffix = postRange.toString().slice(0, 8);
 
                 previewSelectionData = {
                     text: selectedText.trim(), // 選択テキスト自体の前後の空白は取ってもOK
@@ -2920,34 +3001,34 @@ classDiagram
         // --- 1. 強化された検索パターン作成関数 ---
         function makeFuzzyPattern(prefix, text, suffix) {
             const escape = (s) => s ? s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : "";
-            
+
             // 【修正点】 \\d (数字) を noiseChars に追加
             // これにより、リスト番号 (1. など) が文脈の間にあってもマッチするようになります
             const noiseChars = '\\d\\#\\-\\+\\*\\_\\~\\`\\s\\n\\r\\|\\[\\]\\(\\)\\.\\:\\,\\u3000';
-            const noise = `([${noiseChars}|<\\/?mark>]*?)`; 
-            
+            const noise = `([${noiseChars}|<\\/?mark>]*?)`;
+
             const fuzzy = (s) => {
                 if (!s) return "";
                 return s.split('').map((c, i, arr) => {
                     let esc = escape(c);
-                    
+
                     if (/[.*+?^${}()|[\]\\]/.test(c)) {
-                        esc = '\\\\?' + esc; 
+                        esc = '\\\\?' + esc;
                     }
 
                     if (/\s/.test(c)) {
-                        esc = '[\\s\\n\\r\\u3000]*'; 
+                        esc = '[\\s\\n\\r\\u3000]*';
                     }
 
                     if (i === arr.length - 1) return esc;
-                    
+
                     // 文字と文字の間には、数字を含めないノイズ設定にすることで
                     // 単語内の検索精度（誤爆防止）を維持します
                     const charNoiseChars = '\\#\\-\\+\\*\\_\\~\\`\\s\\n\\r\\|\\[\\]\\(\\)\\.\\:\\,\\u3000';
                     return esc + `(?:[${charNoiseChars}|<\\/?mark>])*?`;
                 }).join('');
             };
-            
+
             // prefix, text, suffix の「間」のノイズには数字(\\d)を許可した noise を使用
             return `(${fuzzy(prefix)})${noise}(${fuzzy(text)})${noise}(${fuzzy(suffix)})`;
         }
@@ -2972,10 +3053,10 @@ classDiagram
                     // マッチした範囲全体から、<mark> と </mark> だけを全て削除する
                     const matchedFull = match[0];
                     const unhighlighted = matchedFull.replace(/<\/?mark>/g, '');
-                    
+
                     // ソースコード内の該当箇所を、タグを除去した文字列で置換
                     inputEl.value = currentMarkdown.replace(matchedFull, unhighlighted);
-                    
+
                     isDirty = true;
                     updatePreview();
                     previewSelectionData = null; // 選択データをリセット
@@ -2985,55 +3066,55 @@ classDiagram
                 return;
             }
 
-// B. プレビューからのハイライト追加
-if (action === 'highlight-preview') {
-    if (!previewSelectionData || !previewSelectionData.text) return;
+            // B. プレビューからのハイライト追加
+            if (action === 'highlight-preview') {
+                if (!previewSelectionData || !previewSelectionData.text) return;
 
-    const { text, prefix, suffix } = previewSelectionData;
-    const pattern = makeFuzzyPattern(prefix, text, suffix);
-    const regex = new RegExp(pattern, 'm');
-    const match = inputEl.value.match(regex);
+                const { text, prefix, suffix } = previewSelectionData;
+                const pattern = makeFuzzyPattern(prefix, text, suffix);
+                const regex = new RegExp(pattern, 'm');
+                const match = inputEl.value.match(regex);
 
-    if (match) {
-        // match[2] (前方のノイズ), [3] (テキスト本体), [4] (後方のノイズ)
-        // 【重要】マーク処理を match[3] のみに限定し、[2]と[4]はそのまま返します
-        let targetText = match[3];
-        
-        // 1. 既存のタグを完全に除去
-        targetText = targetText.replace(/<mark[^>]*>/g, '').replace(/<\/mark>/g, '');
-        
-        // 2. 分割すべき記法（構造記号 ＋ 装飾記号 ＋ 改行）
-        const delimRegex = /(\*\*|\*|___|__|_|~~|`|\||^#+\s+|^\s*[\-\+\*]\s+|^\s*\d+\.\s+|^>\s+|\r\n|\n|\r)/gm;
+                if (match) {
+                    // match[2] (前方のノイズ), [3] (テキスト本体), [4] (後方のノイズ)
+                    // 【重要】マーク処理を match[3] のみに限定し、[2]と[4]はそのまま返します
+                    let targetText = match[3];
 
-        // 3. テキストを分解し、意味のあるテキスト部分のみをマーク
-        const segments = targetText.split(delimRegex);
-        const processed = segments.map(seg => {
-            if (!seg) return '';
-            
-            // 記号や改行、リスト番号（delimRegexに一致するもの）はそのまま返す
-            if (seg.match(delimRegex)) {
-                return seg;
-            } else {
-                // 空白のみ、または改行のみの場合はマークしない
-                if (seg.trim() === '') return seg;
-                return `<mark>${seg}</mark>`;
+                    // 1. 既存のタグを完全に除去
+                    targetText = targetText.replace(/<mark[^>]*>/g, '').replace(/<\/mark>/g, '');
+
+                    // 2. 分割すべき記法（構造記号 ＋ 装飾記号 ＋ 改行）
+                    const delimRegex = /(\*\*|\*|___|__|_|~~|`|\||^#+\s+|^\s*[\-\+\*]\s+|^\s*\d+\.\s+|^>\s+|\r\n|\n|\r)/gm;
+
+                    // 3. テキストを分解し、意味のあるテキスト部分のみをマーク
+                    const segments = targetText.split(delimRegex);
+                    const processed = segments.map(seg => {
+                        if (!seg) return '';
+
+                        // 記号や改行、リスト番号（delimRegexに一致するもの）はそのまま返す
+                        if (seg.match(delimRegex)) {
+                            return seg;
+                        } else {
+                            // 空白のみ、または改行のみの場合はマークしない
+                            if (seg.trim() === '') return seg;
+                            return `<mark>${seg}</mark>`;
+                        }
+                    }).join('');
+
+                    // 4. 置換の実行
+                    // match[2] と match[4] は processed の外側に出すことで、マーク対象から除外します
+                    inputEl.value = inputEl.value.replace(regex, (m, p1, p2, p3, p4, p5) => {
+                        return p1 + p2 + processed + p4 + p5;
+                    });
+
+                    isDirty = true;
+                    updatePreview();
+                    previewSelectionData = null;
+                } else {
+                    console.warn("Match failed for pattern:", pattern);
+                }
+                return;
             }
-        }).join('');
-
-        // 4. 置換の実行
-        // match[2] と match[4] は processed の外側に出すことで、マーク対象から除外します
-        inputEl.value = inputEl.value.replace(regex, (m, p1, p2, p3, p4, p5) => {
-            return p1 + p2 + processed + p4 + p5;
-        });
-        
-        isDirty = true;
-        updatePreview();
-        previewSelectionData = null;
-    } else {
-        console.warn("Match failed for pattern:", pattern);
-    }
-    return;
-}
             // C. エディタ（左側）での直接ハイライト
             if (action === 'highlight') {
                 const start = inputEl.selectionStart;
@@ -3065,13 +3146,13 @@ if (action === 'highlight-preview') {
                     e.preventDefault();
                     handleEditAction('highlight-preview');
                 }
-            } 
+            }
             // Uキー: 消去 (Unhighlight)
             else if (key === 'u') {
                 if (previewSelectionData && previewSelectionData.text) {
                     // エディタで文字を入力中の場合は「u」の入力を優先
                     if (document.activeElement === inputEl && inputEl.selectionStart === inputEl.selectionEnd) return;
-                    
+
                     e.preventDefault();
                     handleEditAction('unhighlight-preview');
                 }
@@ -3081,23 +3162,23 @@ if (action === 'highlight-preview') {
         // 要約内容をクリップボードにコピーする関数
         async function copySummary(btn) {
             const summaryText = document.getElementById("summary-text").innerText;
-            
+
             // 内容が空、または「思考中...」の場合はコピーしない
             if (!summaryText || summaryText === "Geminiが思考中...") return;
 
             try {
                 await navigator.clipboard.writeText(summaryText);
-                
+
                 // 成功時のフィードバック
                 const originalText = btn.innerHTML;
                 btn.innerHTML = "✅ 完了";
                 btn.style.backgroundColor = "#c6f6d5"; // 薄い緑色に
-                
+
                 setTimeout(() => {
                     btn.innerHTML = originalText;
                     btn.style.backgroundColor = "#edf2f7"; // 元に戻す
                 }, 2000);
-                
+
             } catch (err) {
                 console.error('コピー失敗:', err);
                 customAlert("コピーに失敗しました。ブラウザの設定を確認してください。");
@@ -3112,7 +3193,7 @@ if (action === 'highlight-preview') {
                 document.getElementById("edit-dropdown").classList.remove("show");
             }
         });
-        
+
         document.querySelectorAll('[data-format]').forEach(item => {
             item.addEventListener('click', (e) => {
                 const fmt = e.target.dataset.format;
@@ -3132,10 +3213,10 @@ if (action === 'highlight-preview') {
         const helpBtn = document.getElementById("help-button");
         if (helpBtn) helpBtn.addEventListener("click", showHelp);
 
-        input.addEventListener("input", () => { 
-            isDirty = true; 
+        input.addEventListener("input", () => {
+            isDirty = true;
             justCleared = false;
-            updatePreview(); 
+            updatePreview();
         });
 
         const fontSizeSelect = document.getElementById("font-size-select");
@@ -3144,7 +3225,7 @@ if (action === 'highlight-preview') {
             document.body.style.fontSize = (baseBodyFontSize * val) + "px";
             input.style.fontSize = (baseTextareaFontSize * val) + "px";
         });
-        
+
         // Ctrl+Z でアンドゥ
         document.addEventListener("keydown", (e) => {
             if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
@@ -3160,10 +3241,10 @@ if (action === 'highlight-preview') {
         function clearAllHighlights() {
             const inputEl = document.getElementById("md-input");
             const originalText = inputEl.value;
-            
+
             // <mark> と </mark> をすべて除去（グローバル置換）
             const newText = originalText.replace(/<mark>/g, '').replace(/<\/mark>/g, '');
-            
+
             if (originalText !== newText) {
                 // 現在の状態をアンドゥスタックに保存
                 undoStack.push({
@@ -3171,7 +3252,7 @@ if (action === 'highlight-preview') {
                     fileName: document.getElementById("current-file").textContent,
                     fileHandle: currentFileHandle
                 });
-                
+
                 inputEl.value = newText;
                 isDirty = true;
                 justCleared = true; // アンドゥを有効にするフラグ
@@ -3189,7 +3270,7 @@ if (action === 'highlight-preview') {
         previewArea.addEventListener('contextmenu', (e) => {
             const selection = window.getSelection().toString();
             if (selection) {
-                e.preventDefault(); 
+                e.preventDefault();
                 // pageX/Y ではなく clientX/Y を使用することで
                 // スクロール位置に関わらずマウスの場所に表示されます
                 showContextMenu(e.clientX, e.clientY);
@@ -3200,7 +3281,7 @@ if (action === 'highlight-preview') {
         function showContextMenu(x, y) {
             const contextMenu = document.getElementById('custom-context-menu');
             contextMenu.style.display = 'block';
-            
+
             // 画面の右端や下端でメニューがはみ出さないための簡易調整
             const menuWidth = 180;
             const menuHeight = 120;
@@ -3230,7 +3311,7 @@ if (action === 'highlight-preview') {
 
         // 5. handleEditAction 内で処理が終わったらメニューを閉じるように微調整
         const originalHandleEditAction = handleEditAction;
-        handleEditAction = async function(action) {
+        handleEditAction = async function (action) {
             await originalHandleEditAction(action);
             hideContextMenu();
         };
@@ -3260,7 +3341,7 @@ if (action === 'highlight-preview') {
         dropZone.addEventListener("drop", async (e) => {
             e.stopPropagation();
             e.preventDefault();
-            
+
             // スタイルを元に戻す
             dropZone.style.borderColor = "var(--border)";
             dropZone.style.boxShadow = "0 2px 8px var(--panel-shadow)";
@@ -3279,18 +3360,18 @@ if (action === 'highlight-preview') {
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     input.value = event.target.result;
-                    
+
                     // ファイル名表示を更新
                     setCurrentFileLabel(file.name);
-                    
+
                     // 注意: ドラッグ＆ドロップでは「上書き保存」用のハンドルは取得できないため、
                     // 新規ファイル扱いとしてハンドルをリセットします
                     currentFileHandle = null;
-                    
+
                     isDirty = false;
                     updatePreview();
                 };
-                
+
                 // テキストとして読み込む
                 reader.readAsText(file);
             }
@@ -3318,7 +3399,7 @@ if (action === 'highlight-preview') {
             if (!fullText.trim()) return;
 
             const hasMarks = /<mark[^>]*>.*?<\/mark>/is.test(fullText);
-            
+
             let promptInstruction = "";
             if (hasMarks) {
                 promptInstruction = "以下のテキストの中から、<mark>タグで囲まれた部分を抽出し、その重要なポイントを組み合わせて「箇条書き」で要約してください。";
@@ -3345,7 +3426,7 @@ if (action === 'highlight-preview') {
                 });
 
                 const data = await response.json();
-                
+
                 if (data.candidates && data.candidates[0].content.parts[0].text) {
                     summaryTextEl.innerText = data.candidates[0].content.parts[0].text;
                 } else if (data.error) {
