@@ -1324,11 +1324,59 @@
         ============================================================================ */
         function updatePreview() {
             let text = input.value || "";
-            text = text.replace(/(\$\$[\s\S]*?\$\$)|(\$[^$\n]*?\$)/g, (match) => {
-                return match.replace(/\\/g, "\\\\");
+
+            // 数式（$$...$$ / \[...\] / \(...\) / $...$）を marked から保護する。
+            // marked は \( \) \[ \] や数式中の \ _ 等をエスケープ/強調として
+            // 解釈して壊すため、パース前にプレースホルダへ退避し、パース後に
+            // 元のTeXを復元して MathJax に渡す。
+            const codeBlocks = [];
+            const mathBlocks = [];
+            const codePh = (i) => `CodePlHldr${i}Z`;
+            const mathPh = (i) => `MathJaxPlHldr${i}Z`;
+
+            // コードフェンス・インラインコード内の $ 等を数式と誤認しないよう先に退避
+            text = text.replace(/(^|\n)([ \t]*)(```|~~~)[\s\S]*?\n[ \t]*\3[^\n]*/g, (m) => {
+                codeBlocks.push(m);
+                return codePh(codeBlocks.length - 1);
+            });
+            text = text.replace(/(`{1,2})[^`\n]+?\1/g, (m) => {
+                codeBlocks.push(m);
+                return codePh(codeBlocks.length - 1);
             });
 
-            preview.innerHTML = marked.parse(text);
+            // 数式領域を退避（$$ を $ より先に処理）
+            text = text
+                .replace(/\$\$[\s\S]+?\$\$/g, (m) => {
+                    mathBlocks.push(m);
+                    return mathPh(mathBlocks.length - 1);
+                })
+                .replace(/\\\[[\s\S]+?\\\]/g, (m) => {
+                    mathBlocks.push(m);
+                    return mathPh(mathBlocks.length - 1);
+                })
+                .replace(/\\\([\s\S]+?\\\)/g, (m) => {
+                    mathBlocks.push(m);
+                    return mathPh(mathBlocks.length - 1);
+                })
+                .replace(/\$[^$\n]+?\$/g, (m) => {
+                    mathBlocks.push(m);
+                    return mathPh(mathBlocks.length - 1);
+                });
+
+            // コードは marked に処理させるためパース前に復元
+            codeBlocks.forEach((code, i) => {
+                text = text.split(codePh(i)).join(code);
+            });
+
+            let html = marked.parse(text);
+
+            // 数式はパース後に復元（HTMLとして安全なようエスケープ。
+            // MathJax はテキストノードを読むため &lt; 等は元の文字に戻る）
+            mathBlocks.forEach((math, i) => {
+                html = html.split(mathPh(i)).join(escapeHtml(math));
+            });
+
+            preview.innerHTML = html;
 
             if (typeof window.mermaid !== "undefined") {
                 const mermaidBlocks = preview.querySelectorAll(".mermaid");
